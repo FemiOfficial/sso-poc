@@ -9,21 +9,19 @@ import (
 
 	_ "github.com/joho/godotenv/autoload"
 
-	"sso-poc/internal/database"
+	"sso-poc/internal/auth"
 )
 
 type Server struct {
 	port int
-
-	db database.Service
+	auth *auth.Auth
 }
 
 func NewServer() *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
 	NewServer := &Server{
 		port: port,
-
-		db: database.New(),
+		auth: auth.NewAuth(),
 	}
 
 	// Declare Server config
