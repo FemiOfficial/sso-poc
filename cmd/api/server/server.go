@@ -9,19 +9,26 @@ import (
 
 	_ "github.com/joho/godotenv/autoload"
 
-	"sso-poc/internal/auth"
+	"sso-poc/cmd/api/server/auth"
+	"sso-poc/internal/cache"
+	"sso-poc/internal/db"
 )
 
 type Server struct {
 	port int
-	auth *auth.Auth
+	db             *db.Database
+	authController *auth.AuthController
 }
 
 func NewServer() *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
+	db := db.InitializeDB()
+	redis := cache.CreateRedisClient()
 	NewServer := &Server{
 		port: port,
-		auth: auth.NewAuth(),
+		// auth:           auth.NewAuth(),
+		db:             db,
+		authController: auth.CreateAuthController(auth.CreateAuthService(db, redis)),
 	}
 
 	// Declare Server config

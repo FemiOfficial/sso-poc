@@ -9,31 +9,29 @@ import (
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
-	r := gin.Default()
+	routes := gin.Default()
 
-	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173"}, // Add your frontend URL
+	routes.Use(cors.New(cors.Config{
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
 		AllowHeaders:     []string{"Accept", "Authorization", "Content-Type"},
 		AllowCredentials: true, // Enable cookies/auth
 	}))
 
-	r.GET("/", s.HelloWorldHandler)
+	api := routes.Group("/api")
+	{
+		api.GET("/health", s.healthHandler)
+		api.POST("/auth/initiate", s.authController.InitiateAuthSession)
+		api.GET()
+	}
 
-	r.GET("/health", s.healthHandler)
+	lib := routes.Group("/lib")
+	{
+		lib.GET("/auth/:provider", s.authHandler)
+		lib.GET("/auth/:provider/callback", s.callBackHandler)
+		lib.GET("/auth/logout", s.logoutHandler)
+	}
 
-	r.GET("/auth/:provider", s.authHandler)
-	r.GET("/auth/:provider/callback", s.callBackHandler)
-	r.GET("/auth/logout", s.logoutHandler)
-
-	return r
-}
-
-func (s *Server) HelloWorldHandler(c *gin.Context) {
-	resp := make(map[string]string)
-	resp["message"] = "Hello World"
-
-	c.JSON(http.StatusOK, resp)
+	return routes
 }
 
 func (s *Server) healthHandler(c *gin.Context) {
