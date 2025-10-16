@@ -1,20 +1,15 @@
 package entitities
 
+type VaultOwner struct {
+	Id   string `gorm:"not null;type:varchar(255)"`
+	Type string `gorm:"not null;enum:organization,user,app,identity_provider"`
+}
 
 // this will be changed  to hashicorp vault
 type Vault struct {
 	BaseEntity
-	EncryptedAccessTokens  string           `gorm:"not null"`
-	EncryptedRefreshTokens string           `gorm:"not null"`
-	IdentityProviderID     string           `gorm:"not null"`
-	IdentityProvider       IdentityProvider `gorm:"foreignKey:IdentityProviderID"`
-	OrganizationID         string           `gorm:"not null"`
-	Organization           Organization     `gorm:"foreignKey:OrganizationID"`
-	AppID                  string           `gorm:"not null"`
-	App                    App              `gorm:"foreignKey:AppID"`
-	Scopes                 string           `gorm:"type:text[]"`
-	UserID                 string           `gorm:"not null"`
-	User                   User             `gorm:"foreignKey:UserID"`
+	Object      string `gorm:"type:text;not null"` // encrypted json string
+	Owner              VaultOwner        `gorm:"Id:Id,Type:Type"`
 }
 
 func (Vault) TableName() string {

@@ -12,6 +12,7 @@ import (
 	"sso-poc/cmd/api/server/auth"
 	"sso-poc/internal/cache"
 	"sso-poc/internal/db"
+	"sso-poc/internal/crypto"
 )
 
 type Server struct {
@@ -24,11 +25,15 @@ func NewServer() *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
 	db := db.InitializeDB()
 	redis := cache.CreateRedisClient()
+	vaultEncrypt, err := crypto.NewTokenEncryption()
+	if err != nil {
+		panic(fmt.Sprintf("Failed to create vault helper: %v", err))
+	}
 	NewServer := &Server{
 		port: port,
 		// auth:           auth.NewAuth(),
 		db:             db,
-		authController: auth.CreateAuthController(auth.CreateAuthService(db, redis)),
+		authController: auth.CreateAuthController(auth.CreateAuthService(db, redis, vaultEncrypt)),
 	}
 
 	// Declare Server config

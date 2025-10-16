@@ -6,6 +6,9 @@ type AppIdentityProvider struct {
 	App                App              `gorm:"foreignKey:AppID"`
 	IdentityProviderID string           `gorm:"not null"`
 	IdentityProvider   IdentityProvider `gorm:"foreignKey:IdentityProviderID"`
+	Status             string           `gorm:"not null;enum:active,inactive;default:active"`
+	VaultId            *string           `gorm:"type:varchar(255);null"`
+	Vault              Vault            `gorm:"Id:VaultId,Type:vault"`
 }
 
 func (AppIdentityProvider) TableName() string {
