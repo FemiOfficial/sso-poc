@@ -13,12 +13,14 @@ import (
 	"sso-poc/internal/cache"
 	"sso-poc/internal/db"
 	"sso-poc/internal/crypto"
+	"sso-poc/cmd/api/server/dashboard/organisation"
 )
 
 type Server struct {
 	port int
 	db             *db.Database
 	authController *auth.AuthController
+	organizationController *organisation.OrganizationController
 }
 
 func NewServer() *http.Server {
@@ -34,6 +36,7 @@ func NewServer() *http.Server {
 		// auth:           auth.NewAuth(),
 		db:             db,
 		authController: auth.CreateAuthController(auth.CreateAuthService(db, redis, vaultEncrypt)),
+		organizationController: organisation.CreateOrganizationController(organisation.CreateOrganizationService(db)),
 	}
 
 	// Declare Server config

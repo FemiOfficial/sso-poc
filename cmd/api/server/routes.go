@@ -1,9 +1,10 @@
 package server
 
 import (
-	"fmt"
 	"net/http"
 	"sso-poc/cmd/api/server/auth"
+	"sso-poc/cmd/api/server/dashboard/middlewares"
+	"sso-poc/cmd/api/server/dashboard/organisation/types"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -12,10 +13,13 @@ import (
 func (s *Server) RegisterRoutes() http.Handler {
 	routes := gin.Default()
 
+	// routes.Use(middlewares.ErrorHandlerMiddleware())
+
 	routes.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"}, // Allow all origins for development
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
-		AllowHeaders:     []string{"Accept", "Authorization", "Content-Type"},
-		AllowCredentials: true, // Enable cookies/auth
+		AllowHeaders:     []string{"Accept", "Authorization", "Content-Type", "Client-Id", "Client-Secret"},
+		AllowCredentials: false, // Set to false when using wildcard origins
 	}))
 
 	api := routes.Group("/api")
@@ -29,6 +33,20 @@ func (s *Server) RegisterRoutes() http.Handler {
 		protectedAPI.POST("/auth/initiate", s.authController.InitiateAuthSession)
 		protectedAPI.GET("/auth/profile", s.authController.GetAuthProfileData)
 		protectedAPI.POST("/auth/login", s.authController.LoginUser)
+	}
+
+	dashboardAPI := routes.Group("/api/dashboard")
+	// dashboardAPI.Use(auth.ClientAuthMiddleware(s.db))
+	{
+		dashboardAPI.POST("/organisation/create",
+			middlewares.ValidateRequestBody[types.CreateOrganizationRequest](),
+			s.organizationController.CreateOrganization)
+
+			dashb
+		
+		dashboardAPI.POST("/organisation/signin",
+			middlewares.ValidateRequestBody[types.LoginOrganizationRequest](),
+			s.organizationController.LoginOrganization)
 	}
 
 	// lib := routes.Group("/lib")

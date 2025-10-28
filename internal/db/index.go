@@ -64,6 +64,8 @@ func AutoMigrate(db *Database) error {
 		&entitities.Organization{},
 		&entitities.IdentityProvider{},
 		&entitities.AppIdentityProvider{},
+		&entitities.AuthRequest{},
+		&entitities.User{},
 	)
 }
 

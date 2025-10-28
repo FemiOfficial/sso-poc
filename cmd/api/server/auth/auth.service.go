@@ -153,12 +153,21 @@ func (s *AuthService) LoginUser(ctx *gin.Context) {
 func (s *AuthService) Callback(ctx *gin.Context) {
 	provider := ctx.Param("provider")
 	sessionId := ctx.Query("session_id")
-	
+
+	query := ctx.Request.URL.Query()
+	query.Set("provider", provider)
+	query.Set("session_id", sessionId)
+	ctx.Request.URL.RawQuery = query.Encode()
+
 	user, err := gothic.CompleteUserAuth(ctx.Writer, ctx.Request)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	fmt.Println(user)
+	http.Redirect(ctx.Writer, ctx.Request, "/api/auth/profile", http.StatusTemporaryRedirect)
+}
 
 func (s *AuthService) GetAuthProfileData(ctx *gin.Context) {
 	sessionId := ctx.Query("session_id")

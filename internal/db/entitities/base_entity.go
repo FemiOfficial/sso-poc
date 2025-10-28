@@ -8,7 +8,7 @@ import (
 )
 
 type BaseEntity struct {
-	ID        string    `gorm:"primaryKey"`
+	ID        string    `gorm:"primaryKey;type:varchar(255)"`
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 }
