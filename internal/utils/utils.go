@@ -2,7 +2,7 @@ package utils
 
 import (
 	"crypto/rand"
-	"encoding/base64"
+	"encoding/base32"
 )
 
 func GenerateRandomString(length int) (string, error) {
@@ -10,5 +10,5 @@ func GenerateRandomString(length int) (string, error) {
 	if _, err := rand.Read(buf); err != nil {
 		return "", err
 	}
-	return base64.StdEncoding.EncodeToString(buf), nil
+	return base32.StdEncoding.EncodeToString(buf), nil
 }

@@ -17,7 +17,11 @@ type Database struct {
 }
 
 func InitializeDB() *Database {
-	db, err := gorm.Open(postgres.Open(os.Getenv("DATABASE_URL")), &gorm.Config{
+	dburl := os.Getenv("DATABASE_URL")
+	if dburl == "" {
+		panic("DATABASE_URL is not set")
+	}
+	db, err := gorm.Open(postgres.Open(dburl), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 		NowFunc: func() time.Time {
 			return time.Now().UTC()
@@ -66,6 +70,7 @@ func AutoMigrate(db *Database) error {
 		&entitities.AppIdentityProvider{},
 		&entitities.AuthRequest{},
 		&entitities.User{},
+		&entitities.Vault{},
 	)
 }
 

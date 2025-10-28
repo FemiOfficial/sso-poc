@@ -4,8 +4,7 @@ type VaultOwnerType string
 type VaultKey string
 
 const (
-	EmailVerificationToken VaultKey = "email_verification_token"
-	PasswordResetToken     VaultKey = "password_reset_token"
+	OrganizationVerificationSecret VaultKey = "organization_verification_secret"
 )
 
 const (

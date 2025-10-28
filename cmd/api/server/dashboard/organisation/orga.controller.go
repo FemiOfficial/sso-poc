@@ -18,7 +18,7 @@ func CreateOrganizationController(organizationService *OrganizationService) *Org
 }
 
 func (c *OrganizationController) CreateOrganization(ctx *gin.Context) {
-	organization, err := c.organizationService.CreateOrganization(ctx.MustGet("request").(types.CreateOrganizationRequest))
+	organization, err := c.organizationService.CreateOrganization(ctx)
 	if err != nil {
 		fmt.Println("Error creating organization: ", err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "failed", "message": "Something went wrong", "data": err.Error()})

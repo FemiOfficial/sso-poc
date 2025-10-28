@@ -42,8 +42,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 			middlewares.ValidateRequestBody[types.CreateOrganizationRequest](),
 			s.organizationController.CreateOrganization)
 
-			dashb
-		
+		// dashb
+
 		dashboardAPI.POST("/organisation/signin",
 			middlewares.ValidateRequestBody[types.LoginOrganizationRequest](),
 			s.organizationController.LoginOrganization)

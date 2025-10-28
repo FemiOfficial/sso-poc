@@ -36,7 +36,7 @@ func NewServer() *http.Server {
 		// auth:           auth.NewAuth(),
 		db:             db,
 		authController: auth.CreateAuthController(auth.CreateAuthService(db, redis, vaultEncrypt)),
-		organizationController: organisation.CreateOrganizationController(organisation.CreateOrganizationService(db)),
+		organizationController: organisation.CreateOrganizationController(organisation.CreateOrganizationService(db, redis, vaultEncrypt)),
 	}
 
 	// Declare Server config

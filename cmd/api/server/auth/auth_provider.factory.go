@@ -27,10 +27,6 @@ func CreateProvider(appIdentityProvider *entitities.AppIdentityProvider, vaultEn
 		return nil, err
 	}
 
-	if err != nil {
-		return nil, err
-	}
-
 	switch appIdentityProvider.IdentityProvider.Name {
 	case "google":
 		return google.New(keys["key"], keys["secret"], callbackURL, scopes), nil
