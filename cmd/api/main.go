@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"sso-poc/internal/server"
+	"sso-poc/cmd/api/server"
 )
 
 func gracefulShutdown(apiServer *http.Server, done chan bool) {

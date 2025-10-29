@@ -1,18 +1,22 @@
 package server
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/gin-gonic/gin"
 )
 
 func TestHelloWorldHandler(t *testing.T) {
-	s := &Server{}
 	r := gin.New()
-	r.GET("/", s.HelloWorldHandler)
+	s := &Server{}
+	routes := r.Group("/api")
+	{
+		routes.GET("/health", s.healthHandler)
+	}
 	// Create a test HTTP request
-	req, err := http.NewRequest("GET", "/", nil)
+	req, err := http.NewRequest("GET", "/api/health", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -25,7 +29,7 @@ func TestHelloWorldHandler(t *testing.T) {
 		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 	// Check the response body
-	expected := "{\"message\":\"Hello World\"}"
+	expected := "{\"status\":\"ok\"}"
 	if rr.Body.String() != expected {
 		t.Errorf("Handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
 	}
