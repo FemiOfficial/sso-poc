@@ -20,8 +20,8 @@ type LoginOrganizationRequest struct {
 
 type VerifyEmailRequest struct {
 	Otp         string `json:"otp" binding:"required,min=6,max=6"`
-	NewPassword string `json:"new_password" binding:"omitempty,min=8,max=255"`
-	OldPassword string `json:"old_password" binding:"required,min=8,max=255"`
+	NewPassword string `json:"new_password" binding:"required,min=8,max=255"`
+	OldPassword string `json:"old_password" binding:"omitempty,min=8,max=255"`
 }
 
 type LoginOrganizationResponseData struct {
@@ -39,7 +39,6 @@ type LoginOrganizationResponseData struct {
 	OrganizationLogo   string    `json:"organization_logo"`
 }
 
-type LoginOrganizationResponse struct {
-	Message string                        `json:"message"`
-	Data    LoginOrganizationResponseData `json:"data"`
+type ResendEmailVerificationOtpRequest struct {
+	Email string `json:"email" binding:"required"`
 }

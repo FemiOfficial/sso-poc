@@ -11,6 +11,7 @@ type UserRepository struct {
 }
 
 type UserFilter struct {
+	ID             string `json:"id"`
 	Email          string `json:"email"`
 	OrganizationID string `json:"organization_id"`
 }
@@ -34,6 +35,10 @@ func (r *UserRepository) FindOneByFilter(filter UserFilter, tx *gorm.DB) (*entit
 
 	query := tx.Model(&entitities.User{}).Preload("Organization")
 
+	if filter.ID != "" {
+		query = query.Where("id = ?", filter.ID)
+	}
+
 	if filter.Email != "" {
 		query = query.Where("email = ?", filter.Email)
 	}
@@ -52,6 +57,10 @@ func (r *UserRepository) FindAllByFilter(filter UserFilter, tx *gorm.DB) ([]*ent
 	}
 
 	query := tx.Model(&entitities.User{}).Preload("Organization")
+
+	if filter.ID != "" {
+		query = query.Where("id = ?", filter.ID)
+	}
 
 	if filter.Email != "" {
 		query = query.Where("email = ?", filter.Email)

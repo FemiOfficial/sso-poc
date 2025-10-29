@@ -42,12 +42,16 @@ func (s *Server) RegisterRoutes() http.Handler {
 			middlewares.ValidateRequestBody[types.CreateOrganizationRequest](),
 			s.organizationController.CreateOrganization)
 
-		dashboardAPI.POST("/organisation/verify-email",
+		dashboardAPI.POST("/organisation/verifification/email",
 			middlewares.ValidateRequestBody[types.VerifyEmailRequest](),
 			s.organizationController.VerifyOrganizationEmail)
 
 		dashboardAPI.POST("/organisation/signin",
 			middlewares.ValidateRequestBody[types.LoginOrganizationRequest](),
+			s.organizationController.LoginOrganization)
+
+		dashboardAPI.POST("/organisation/verification/email/resend",
+			middlewares.ValidateRequestBody[types.ResendEmailVerificationOtpRequest](),
 			s.organizationController.LoginOrganization)
 	}
 

@@ -11,11 +11,18 @@ type OrganisationRepository struct {
 	db *gorm.DB
 }
 
+type OrganisationFilter struct {
+	ID string `json:"id"`
+	Email string `json:"email"`
+	Domain string `json:"domain"`
+	Name string `json:"name"`
+}
+
 func CreateOrganisationRepository(db *gorm.DB) *OrganisationRepository {
 	return &OrganisationRepository{db: db}
 }
 
-func (r *OrganisationRepository) Create(organisation *types.CreateOrganizationRequest, tx *gorm.DB) error {
+func (r *OrganisationRepository) Create(organisation *types.CreateOrganizationRequest, tx *gorm.DB) (*entitities.Organization, error) {
 	organization := &entitities.Organization{
 		Name:        organisation.Name,
 		Domain:      organisation.Domain,
@@ -30,15 +37,55 @@ func (r *OrganisationRepository) Create(organisation *types.CreateOrganizationRe
 	if tx == nil {
 		tx = r.db
 	}
-	return tx.Create(organization).Error
+	return organization, tx.Create(organization).Error
 }
 
-// func (r *OrganisationRepository) GetOrganisationByEmail(email string) (*entitities.Organization, error) {
-// 	organisation := &entitities.Organization{}
-// 	return organisation, r.db.Where("email = ?", email).First(organisation).Error
-// }
+func (r *OrganisationRepository) FindOneByFilter(filter OrganisationFilter, tx *gorm.DB) (*entitities.Organization, error) {
+	if tx == nil {
+		tx = r.db
+	}
 
-// func (r *OrganisationRepository) GetOrganisationByDomain(domain string) (*entitities.Organization, error) {
-// 	organisation := &entitities.Organization{}
-// 	return organisation, r.db.Where("domain = ?", domain).First(organisation).Error
-// }
+	query := tx.Model(&entitities.Organization{})
+
+	if filter.ID != "" {
+		query = query.Where("id = ?", filter.ID)
+	}
+
+	if filter.Email != "" {
+		query = query.Where("email = ?", filter.Email)
+	}
+
+	if filter.Domain != "" {
+		query = query.Where("domain = ?", filter.Domain)
+	}
+
+	organisation := &entitities.Organization{}
+	return organisation, query.First(organisation).Error
+}
+
+func (r *OrganisationRepository) FindAllByFilter(filter OrganisationFilter, tx *gorm.DB) ([]*entitities.Organization, error) {
+	if tx == nil {
+		tx = r.db
+	}
+
+	query := tx.Model(&entitities.Organization{})
+
+	if filter.ID != "" {
+		query = query.Where("id = ?", filter.ID)
+	}
+
+	if filter.Email != "" {
+		query = query.Where("email = ?", filter.Email)
+	}
+
+	if filter.Domain != "" {
+		query = query.Where("domain = ?", filter.Domain)
+	}
+
+	if filter.Name != "" {
+		query = query.Where("name = ?", filter.Name)
+	}
+
+	organisations := []*entitities.Organization{}
+	return organisations, query.Find(&organisations).Error
+}
