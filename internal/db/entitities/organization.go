@@ -1,7 +1,4 @@
 package entitities
-
-import "time"
-
 type Organization struct {
 	BaseEntity
 	Name string `gorm:"type:varchar(255); null"`
@@ -11,10 +8,7 @@ type Organization struct {
 	Location string `gorm:"type:varchar(255); null"`
 	Industry string `gorm:"type:varchar(255); null"`
 	Size int `gorm:"type:integer; null"`
-	MfaEnabled bool `gorm:"default:false"`
-	Password string `gorm:"type:varchar(255); null"`
-	EmailVerified bool `gorm:"default:false"`
-	EmailVerifiedAt time.Time `gorm:"type:timestamp; null"`
+	Email string `gorm:"type:varchar(255); null; default:null"`
 }
 
 func (Organization) TableName() string {

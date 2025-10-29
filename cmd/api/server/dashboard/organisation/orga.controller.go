@@ -3,9 +3,7 @@ package organisation
 import (
 	"fmt"
 	"net/http"
-
-	"sso-poc/cmd/api/server/dashboard/organisation/types"
-
+	"sso-poc/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,18 +19,29 @@ func (c *OrganizationController) CreateOrganization(ctx *gin.Context) {
 	organization, err := c.organizationService.CreateOrganization(ctx)
 	if err != nil {
 		fmt.Println("Error creating organization: ", err)
-		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "failed", "message": "Something went wrong", "data": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, utils.GenericApiResponse(http.StatusInternalServerError, nil, err.Error()))
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": "Organization created successfully", "data": organization})
+	message := "Organization created successfully"
+	ctx.JSON(http.StatusOK, utils.GenericApiResponse(http.StatusOK, &message, organization))
+}
+
+func (c *OrganizationController) VerifyOrganizationEmail(ctx *gin.Context) {
+	err, message := c.organizationService.VerifyOrganizationEmail(ctx)
+	if err != nil {
+		fmt.Println("Error verifying organization email: ", err)
+		ctx.JSON(http.StatusInternalServerError, utils.GenericApiResponse(http.StatusInternalServerError, nil, err.Error()))
+		return
+	}
+	ctx.JSON(http.StatusOK, utils.GenericApiResponse(http.StatusOK, &message, nil))
 }
 
 func (c *OrganizationController) LoginOrganization(ctx *gin.Context) {
-	organization, err := c.organizationService.LoginOrganization(ctx.MustGet("request").(types.LoginOrganizationRequest))
+	err, response := c.organizationService.LoginOrganization(ctx)
 	if err != nil {
-		fmt.Println("Error logging in organization: ", err)
-		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "failed", "message": "Something went wrong", "data": err.Error()})
+		fmt.Println("Error logging in organization user: ", err)
+		ctx.JSON(http.StatusInternalServerError, utils.GenericApiResponse(http.StatusInternalServerError, nil, err.Error()))
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": "Organization logged in successfully", "data": organization})
+	ctx.JSON(http.StatusOK, utils.GenericApiResponse(http.StatusOK, &response.Message, response.Data))
 }	
