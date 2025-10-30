@@ -14,9 +14,9 @@ import (
 )
 
 func CreateProvider(appIdentityProvider *entitities.AppIdentityProvider, vaultEncrypt *crypto.TokenEncryption, callbackURL string) (goth.Provider, error) {
-	scopes := appIdentityProvider.App.Scopes
-	if scopes == "" {
-		scopes = getDefaultScopes(appIdentityProvider.IdentityProvider.Name)
+	integrations := appIdentityProvider.App.Integrations
+	if len(integrations) == 0 {
+		integrations = getDefaultIntegrations(appIdentityProvider.IdentityProvider.Name)
 	}
 
 	decryptedKeys, err := vaultEncrypt.Decrypt(appIdentityProvider.Vault.Object)
@@ -41,7 +41,7 @@ func CreateProvider(appIdentityProvider *entitities.AppIdentityProvider, vaultEn
 	}
 }
 
-func getDefaultScopes(providerName string) string {
+func getDefaultIntegrations(providerName string) string {
 	defaults := map[string]string{
 		"google":   "email profile",
 		"github":   "user:email, user:read, user:email, user:read.email, read:org",
