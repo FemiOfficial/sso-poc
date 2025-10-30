@@ -7,7 +7,9 @@ type AppIdentityProvider struct {
 	IdentityProviderID string           `gorm:"not null"`
 	IdentityProvider   IdentityProvider `gorm:"foreignKey:IdentityProviderID"`
 	Status             string           `gorm:"not null;enum:active,inactive;default:active"`
-	VaultId            *string           `gorm:"type:varchar(255);null"`
+	IsDefault          bool             `gorm:"not null;default:false"`
+	Scopes             []string         `gorm:"type:text[];not null"`
+	VaultId            *string          `gorm:"type:varchar(255);null"`
 	Vault              Vault            `gorm:"Id:VaultId,Type:vault"`
 }
 

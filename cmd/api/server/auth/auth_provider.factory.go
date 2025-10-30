@@ -1,44 +1,42 @@
 package auth
 
 import (
-	"encoding/json"
-	"fmt"
 	"sso-poc/internal/crypto"
 	"sso-poc/internal/db/entitities"
 
 	"github.com/markbates/goth"
-	"github.com/markbates/goth/providers/facebook"
-	"github.com/markbates/goth/providers/github"
-	"github.com/markbates/goth/providers/google"
-	"github.com/markbates/goth/providers/linkedin"
+	// "github.com/markbates/goth/providers/facebook"
+	// "github.com/markbates/goth/providers/github"
+	// "github.com/markbates/goth/providers/google"
+	// "github.com/markbates/goth/providers/linkedin"
 )
 
 func CreateProvider(appIdentityProvider *entitities.AppIdentityProvider, vaultEncrypt *crypto.TokenEncryption, callbackURL string) (goth.Provider, error) {
-	integrations := appIdentityProvider.App.Integrations
-	if len(integrations) == 0 {
-		integrations = getDefaultIntegrations(appIdentityProvider.IdentityProvider.Name)
-	}
+	// integrations := appIdentityProvider.App.IdentityProviders
+	// if len(integrations) == 0 {
+	// 	integrations = getDefaultIntegrations(appIdentityProvider.IdentityProvider.Name)
+	// }
 
-	decryptedKeys, err := vaultEncrypt.Decrypt(appIdentityProvider.Vault.Object)
+	// decryptedKeys, err := vaultEncrypt.Decrypt(appIdentityProvider.Vault.Object)
 
-	var keys map[string]string
-	err = json.Unmarshal([]byte(decryptedKeys), &keys)
-	if err != nil {
-		return nil, err
-	}
+	// var keys map[string]string
+	// err = json.Unmarshal([]byte(decryptedKeys), &keys)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	switch appIdentityProvider.IdentityProvider.Name {
-	case "google":
-		return google.New(keys["key"], keys["secret"], callbackURL, scopes), nil
-	case "github":
-		return github.New(keys["key"], keys["secret"], callbackURL, scopes), nil
-	case "facebook":
-		return facebook.New(keys["key"], keys["secret"], callbackURL, scopes), nil
-	case "linkedin":
-		return linkedin.New(keys["key"], keys["secret"], callbackURL, scopes), nil
-	default:
-		return nil, fmt.Errorf("invalid provider: %s", appIdentityProvider.IdentityProvider.Name)
-	}
+	// switch appIdentityProvider.IdentityProvider.Name {
+	// case "google":
+	// 	return google.New(keys["key"], keys["secret"], callbackURL, scopes), nil
+	// case "github":
+	// 	return github.New(keys["key"], keys["secret"], callbackURL, scopes), nil
+	// case "facebook":
+	// 	return facebook.New(keys["key"], keys["secret"], callbackURL, scopes), nil
+	// case "linkedin":
+	// 	return linkedin.New(keys["key"], keys["secret"], callbackURL, scopes), nil
+	// default:
+	// 	return nil, fmt.Errorf("invalid provider: %s", appIdentityProvider.IdentityProvider.Name)
+	// }
 }
 
 func getDefaultIntegrations(providerName string) string {
