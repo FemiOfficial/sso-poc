@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"sso-poc/cmd/api/server/auth"
 	"sso-poc/cmd/api/server/dashboard/middlewares"
-	"sso-poc/cmd/api/server/dashboard/organisation/types"
+	organisationTypes "sso-poc/cmd/api/server/dashboard/organisation/types"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -36,23 +36,30 @@ func (s *Server) RegisterRoutes() http.Handler {
 	}
 
 	dashboardAPI := routes.Group("/api/dashboard")
-	// dashboardAPI.Use(auth.ClientAuthMiddleware(s.db))
 	{
 		dashboardAPI.POST("/organisation/create",
-			middlewares.ValidateRequestBody[types.CreateOrganizationRequest](),
+			middlewares.ValidateRequestBody[organisationTypes.CreateOrganizationRequest](),
 			s.organizationController.CreateOrganization)
 
 		dashboardAPI.POST("/organisation/verifification/email",
-			middlewares.ValidateRequestBody[types.VerifyEmailRequest](),
+			middlewares.ValidateRequestBody[organisationTypes.VerifyEmailRequest](),
 			s.organizationController.VerifyOrganizationEmail)
 
 		dashboardAPI.POST("/organisation/signin",
-			middlewares.ValidateRequestBody[types.LoginOrganizationRequest](),
+			middlewares.ValidateRequestBody[organisationTypes.LoginOrganizationRequest](),
 			s.organizationController.LoginOrganization)
 
 		dashboardAPI.POST("/organisation/verification/email/resend",
-			middlewares.ValidateRequestBody[types.ResendEmailVerificationOtpRequest](),
+			middlewares.ValidateRequestBody[organisationTypes.ResendEmailVerificationOtpRequest](),
 			s.organizationController.ResendEmailVerificationOtp)
+	}
+
+	protectedDashboardAPI := routes.Group("/api/dashboard")
+	protectedDashboardAPI.Use(middlewares.JwtMiddleware(s.db))
+	{
+		// protectedDashboardAPI.POST("/app/create",
+		// 	middlewares.ValidateRequestBody[types.CreateAppRequest](),
+		// 	s.appController.CreateApp)
 	}
 
 	// lib := routes.Group("/lib")

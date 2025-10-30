@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"sso-poc/internal/db"
 	"sso-poc/internal/db/entitities"
-
+	"sso-poc/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,8 +14,10 @@ func ClientAuthMiddleware(db *db.Database) gin.HandlerFunc {
 		clientId := ctx.GetHeader("Client-Id")
 		clientSecret := ctx.GetHeader("Client-Secret")
 
+		var message string = "Missing client credentials"
+
 		if clientId == "" || clientSecret == "" {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Missing client credentials"})
+			ctx.JSON(http.StatusUnauthorized, utils.GenericApiResponse(http.StatusUnauthorized, &message, nil))
 			ctx.Abort()
 			return
 		}
@@ -24,7 +26,8 @@ func ClientAuthMiddleware(db *db.Database) gin.HandlerFunc {
 		db.DB.Where("client_id = ?", clientId).First(app)
 
 		if app.ID == "" || app.ClientSecret != clientSecret {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid client credentials"})
+			message = "Invalid client credentials"
+			ctx.JSON(http.StatusUnauthorized, utils.GenericApiResponse(http.StatusUnauthorized, &message, nil))
 			ctx.Abort()
 			return
 		}

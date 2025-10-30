@@ -22,7 +22,7 @@ func CreateOrganisationRepository(db *gorm.DB) *OrganisationRepository {
 	return &OrganisationRepository{db: db}
 }
 
-func (r *OrganisationRepository) Create(organisation *types.CreateOrganizationRequest, tx *gorm.DB) (*entitities.Organization, error) {
+func (r *OrganisationRepository) Create(organisation *organisationTypes.CreateOrganizationRequest, tx *gorm.DB) (*entitities.Organization, error) {
 	organization := &entitities.Organization{
 		Name:        organisation.Name,
 		Domain:      organisation.Domain,

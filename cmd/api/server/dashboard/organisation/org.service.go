@@ -19,8 +19,9 @@ import (
 	"github.com/pquerna/otp/totp"
 	"gorm.io/gorm"
 
-	"sso-poc/cmd/api/server/dashboard/organisation/types"
-	"sso-poc/internal/db/repositories"
+	organisationTypes "sso-poc/cmd/api/server/dashboard/organisation/types"
+
+		"sso-poc/internal/db/repositories"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -50,7 +51,7 @@ func CreateOrganizationService(db *db.Database, redis *redis.Client, vaultEncryp
 func (s *OrganizationService) CreateOrganization(ctx *gin.Context) (*entitities.Organization, error, *int) {
 	var organization *entitities.Organization
 	var statusCode int = http.StatusInternalServerError
-	var createOrganizationRequest types.CreateOrganizationRequest = ctx.MustGet("request").(types.CreateOrganizationRequest)
+	var createOrganizationRequest organisationTypes.CreateOrganizationRequest = ctx.MustGet("request").(organisationTypes.CreateOrganizationRequest)
 	err := s.db.DB.Transaction(func(tx *gorm.DB) error {
 		err := s.validateOrganizationParams(tx, createOrganizationRequest.Email, createOrganizationRequest.Domain)
 		if err != nil {
@@ -98,7 +99,7 @@ func (s *OrganizationService) VerifyOrganizationEmail(ctx *gin.Context) (error, 
 
 	var statusCode = http.StatusInternalServerError
 	var message string = "email verified successfully"
-	var verifyEmailRequest types.VerifyEmailRequest = ctx.MustGet("request").(types.VerifyEmailRequest)
+	var verifyEmailRequest organisationTypes.VerifyEmailRequest = ctx.MustGet("request").(organisationTypes.VerifyEmailRequest)
 
 	value, err := s.redis.Get(ctx, fmt.Sprintf("email_verification_token:%s", verifyEmailRequest.Otp)).Result()
 	if err != nil {
@@ -151,8 +152,8 @@ func (s *OrganizationService) VerifyOrganizationEmail(ctx *gin.Context) (error, 
 	return nil, &message, &statusCode
 }
 
-func (s *OrganizationService) LoginOrganization(ctx *gin.Context) (error, *types.LoginOrganizationResponseData, *int) {
-	var loginOrganizationRequest types.LoginOrganizationRequest = ctx.MustGet("request").(types.LoginOrganizationRequest)
+func (s *OrganizationService) LoginOrganization(ctx *gin.Context) (error, *organisationTypes.LoginOrganizationResponseData, *int) {
+	var loginOrganizationRequest organisationTypes.LoginOrganizationRequest = ctx.MustGet("request").(organisationTypes.LoginOrganizationRequest)
 
 	var statusCode int = http.StatusInternalServerError
 	var message string = "login successful"
@@ -200,7 +201,7 @@ func (s *OrganizationService) LoginOrganization(ctx *gin.Context) (error, *types
 
 	statusCode = http.StatusOK
 	return nil,
-		&types.LoginOrganizationResponseData{
+		&organisationTypes.LoginOrganizationResponseData{
 			UserId:             user.ID,
 			Token:              *token,
 			RefreshToken:       *refreshToken,
@@ -220,7 +221,7 @@ func (s *OrganizationService) LoginOrganization(ctx *gin.Context) (error, *types
 func (s *OrganizationService) ResendEmailVerificationOtp(ctx *gin.Context) (error, *string, *int) {
 	var statusCode = http.StatusInternalServerError
 	var message string = "email verification otp sent successfully"
-	var resendEmailVerificationOtpRequest types.ResendEmailVerificationOtpRequest = ctx.MustGet("request").(types.ResendEmailVerificationOtpRequest)
+	var resendEmailVerificationOtpRequest organisationTypes.ResendEmailVerificationOtpRequest = ctx.MustGet("request").(organisationTypes.ResendEmailVerificationOtpRequest)
 
 	err := s.db.DB.Transaction(func(tx *gorm.DB) error {
 		user, err := s.userRepository.FindOneByFilter(repositories.UserFilter{

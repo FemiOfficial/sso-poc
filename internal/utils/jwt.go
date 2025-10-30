@@ -64,3 +64,11 @@ func GenerateJWT(userId string, organizationId string, email string) (*string, *
 
 	return &tokenString, &refreshTokenString, &jwtExpiration, nil
 }
+
+func VerifyJWT(token string) (*CustomClaims, error) {
+	claims := &CustomClaims{}
+	_, err := jwt.ParseWithClaims(token, claims, func(_ *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("JWT_SECRET")), nil
+	})
+	return claims, err
+}
