@@ -30,7 +30,7 @@ func (c *OrganizationController) CreateOrganization(ctx *gin.Context) {
 }
 
 func (c *OrganizationController) VerifyOrganizationEmail(ctx *gin.Context) {
-	err, message, statusCode:= c.organizationService.VerifyOrganizationEmail(ctx)
+	err, message, statusCode := c.organizationService.VerifyOrganizationEmail(ctx)
 	if err != nil {
 		fmt.Println("Error verifying organization email: ", err, statusCode)
 		ctx.JSON(*statusCode, utils.GenericApiResponse(*statusCode, message, nil))
@@ -44,6 +44,18 @@ func (c *OrganizationController) LoginOrganization(ctx *gin.Context) {
 	message := "login successful"
 	if err != nil {
 		fmt.Println("Error logging in organization user: ", err, statusCode)
+		message = err.Error()
+		ctx.JSON(*statusCode, utils.GenericApiResponse(*statusCode, &message, nil))
+		return
+	}
+	ctx.JSON(*statusCode, utils.GenericApiResponse(*statusCode, &message, response))
+}
+
+func (c *OrganizationController) ResendEmailVerificationOtp(ctx *gin.Context) {
+	err, response, statusCode := c.organizationService.ResendEmailVerificationOtp(ctx)
+	message := "otp resent successfully"
+	if err != nil {
+		fmt.Println("Error resending verification otp: ", err, statusCode)
 		message = err.Error()
 		ctx.JSON(*statusCode, utils.GenericApiResponse(*statusCode, &message, nil))
 		return

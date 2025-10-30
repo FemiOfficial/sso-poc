@@ -114,15 +114,7 @@ func (s *OrganizationService) VerifyOrganizationEmail(ctx *gin.Context) (error, 
 		return err, &message, &statusCode
 	}
 
-	secret := cacheValue["secret"]
 	userId := cacheValue["user_id"]
-
-	isValid := totp.Validate(verifyEmailRequest.Otp, secret)
-	if !isValid {
-		message = "invalid otp token, please try again"
-		statusCode = http.StatusBadRequest
-		return nil, &message, &statusCode
-	}
 
 	err = s.db.DB.Transaction(func(tx *gorm.DB) error {
 		user, err := s.userRepository.FindOneByFilter(repositories.UserFilter{

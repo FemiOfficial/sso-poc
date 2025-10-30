@@ -52,7 +52,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 		dashboardAPI.POST("/organisation/verification/email/resend",
 			middlewares.ValidateRequestBody[types.ResendEmailVerificationOtpRequest](),
-			s.organizationController.LoginOrganization)
+			s.organizationController.ResendEmailVerificationOtp)
 	}
 
 	// lib := routes.Group("/lib")
