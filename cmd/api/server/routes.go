@@ -57,6 +57,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	protectedDashboardAPI := routes.Group("/api/dashboard")
 	protectedDashboardAPI.Use(middlewares.JwtMiddleware(s.db))
 	{
+		protectedDashboardAPI.GET("/misc/identity-providers", s.miscController.GetIdentityProviders)
 		// protectedDashboardAPI.POST("/app/create",
 		// 	middlewares.ValidateRequestBody[types.CreateAppRequest](),
 		// 	s.appController.CreateApp)

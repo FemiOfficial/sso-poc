@@ -1,0 +1,61 @@
+[{
+    "name": "google",
+    "display_name": "Google",
+    "scopes": [],
+    "status": "active"
+  },
+  {
+    "name": "facebook",
+    "display_name": "Facebook",
+    "scopes": [],
+    "status": "active"
+  },
+  {
+    "name": "linkedin",
+    "display_name": "LinkedIn",
+    "scopes": [],
+    "status": "active"
+  },
+  {
+    "name": "github",
+    "display_name": "GitHub",
+    "scopes": [],
+    "status": "active"
+  },
+  {
+    "name": "twitter",
+    "display_name": "Twitter (X)",
+    "scopes": [],
+    "status": "active"
+  },
+  {
+    "name": "microsoft",
+    "display_name": "Microsoft",
+    "scopes": [],
+    "status": "active"
+  },
+  {
+    "name": "apple",
+    "display_name": "Apple",
+    "scopes": ["name", "email"],
+    "status": "active"
+  },
+  {
+    "name": "amazon",
+    "display_name": "Amazon",
+    "scopes": [],
+    "status": "active"
+  },
+  {
+    "name": "twitch",
+    "display_name": "Twitch",
+    "scopes": [],
+    "status": "active"
+  },
+  {
+    "name": "okta",
+    "display_name": "Okta",
+    "scopes": ["openid", "profile", "email"],
+    "status": "active"
+  }
+]

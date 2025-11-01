@@ -3,6 +3,10 @@
 # Build the application
 all: build test
 
+seed:
+	@echo "Seeding..."
+	@go run cmd/seeds/main.go
+
 build:
 	@echo "Building..."
 	

@@ -37,18 +37,20 @@ func CreateProvider(appIdentityProvider *entitities.AppIdentityProvider, vaultEn
 	// default:
 	// 	return nil, fmt.Errorf("invalid provider: %s", appIdentityProvider.IdentityProvider.Name)
 	// }
+
+	return nil, nil
 }
 
-func getDefaultIntegrations(providerName string) string {
-	defaults := map[string]string{
-		"google":   "email profile",
-		"github":   "user:email, user:read, user:email, user:read.email, read:org",
-		"facebook": "email,public_profile",
-		"linkedin": "email,profile,openid",
-	}
+// func getDefaultIntegrations(providerName string) string {
+// 	defaults := map[string]string{
+// 		"google":   "email profile",
+// 		"github":   "user:email, user:read, user:email, user:read.email, read:org",
+// 		"facebook": "email,public_profile",
+// 		"linkedin": "email,profile,openid",
+// 	}
 
-	if scope, ok := defaults[providerName]; ok {
-		return scope
-	}
-	return "email profile"
-}
+// 	if scope, ok := defaults[providerName]; ok {
+// 		return scope
+// 	}
+// 	return "email profile"
+// }

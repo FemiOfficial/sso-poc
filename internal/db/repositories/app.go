@@ -28,7 +28,7 @@ func CreateAppRepository(db *gorm.DB) *AppRepository {
 func (r *AppRepository) Create(
 	request *appTypes.CreateAppRequest,
 	organizationID string, tx *gorm.DB,
-	appIdentityProviderRepository *AppIdentityProviderRepository) error {
+	appIdentityProviderRepository *AppIdentityProviderRepository) (*entitities.App, error) {
 	if tx == nil {
 		tx = r.db
 	}
@@ -36,7 +36,7 @@ func (r *AppRepository) Create(
 	clientID := uuid.New().String()
 	clientSecret, err := utils.GenerateRandomString(128)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if len(request.Scopes) == 0 {
@@ -56,7 +56,7 @@ func (r *AppRepository) Create(
 
 	err = tx.Create(app).Error
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	appIdentityProviders := []*entitities.AppIdentityProvider{}
@@ -66,21 +66,21 @@ func (r *AppRepository) Create(
 			IsDefault: true,
 		}, tx)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	} else {
 		appIdentityProviders, err = r.getAppProvidersFromRequest(request, app, appIdentityProviderRepository, tx)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 
 	err = appIdentityProviderRepository.CreateMany(appIdentityProviders, tx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return app, nil
 }
 
 func (r *AppRepository) FindOneByFilter(filter AppFilter, tx *gorm.DB) (*entitities.App, error) {

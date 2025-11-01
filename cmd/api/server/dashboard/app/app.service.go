@@ -1,32 +1,58 @@
 package app
 
 import (
-	"sso-poc/internal/db"
-	"sso-poc/internal/crypto"
-	"github.com/redis/go-redis/v9"
-	"github.com/gin-gonic/gin"
+	"net/http"
 	appTypes "sso-poc/cmd/api/server/dashboard/app/types"
+	"sso-poc/internal/crypto"
+	"sso-poc/internal/db"
+	"sso-poc/internal/db/entitities"
 	"sso-poc/internal/db/repositories"
+	"sso-poc/internal/utils"
+
+	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
+	"gorm.io/gorm"
 )
 
 type AppService struct {
-	db *db.Database
-	redis *redis.Client
-	vaultEncrypt *crypto.TokenEncryption
-	appRepository *repositories.AppRepository
+	db                            *db.Database
+	redis                         *redis.Client
+	vaultEncrypt                  *crypto.TokenEncryption
+	appRepository                 *repositories.AppRepository
 	appIdentityProviderRepository *repositories.AppIdentityProviderRepository
 }
 
 func CreateAppService(db *db.Database, redis *redis.Client, vaultEncrypt *crypto.TokenEncryption) *AppService {
 	return &AppService{
-		db: db,
-		redis: redis,
-		vaultEncrypt: vaultEncrypt,
-		appRepository: repositories.CreateAppRepository(db.DB),
+		db:                            db,
+		redis:                         redis,
+		vaultEncrypt:                  vaultEncrypt,
+		appRepository:                 repositories.CreateAppRepository(db.DB),
 		appIdentityProviderRepository: repositories.CreateAppIdentityProviderRepository(db.DB),
 	}
 }
 
-func (s *AppService) CreateApp(ctx *gin.Context, request appTypes.CreateAppRequest) (string, error) {
-	
+func (s *AppService) CreateApp(ctx *gin.Context) (*string, error, *int) {
+	var app *entitities.App
+	var statusCode int = http.StatusInternalServerError
+
+	var createAppRequest appTypes.CreateAppRequest = ctx.MustGet("request").(appTypes.CreateAppRequest)
+	var user *utils.CustomClaims = ctx.MustGet("user").(*utils.CustomClaims)
+	var err error
+
+	err = s.db.DB.Transaction(func(tx *gorm.DB) error {
+		app, err = s.appRepository.Create(&createAppRequest, user.OrganizationID, tx, s.appIdentityProviderRepository)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err, &statusCode
+	}
+
+	statusCode = http.StatusOK
+	return &app.ID, nil, &statusCode
 }

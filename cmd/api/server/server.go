@@ -14,6 +14,7 @@ import (
 	"sso-poc/internal/db"
 	"sso-poc/internal/crypto"
 	"sso-poc/cmd/api/server/dashboard/organisation"
+	"sso-poc/cmd/api/server/dashboard/misc"
 )
 
 type Server struct {
@@ -21,6 +22,7 @@ type Server struct {
 	db             *db.Database
 	authController *auth.AuthController
 	organizationController *organisation.OrganizationController
+	miscController *misc.MiscController
 }
 
 func NewServer() *http.Server {
