@@ -20,6 +20,7 @@ type AppService struct {
 	vaultEncrypt                  *crypto.TokenEncryption
 	appRepository                 *repositories.AppRepository
 	appIdentityProviderRepository *repositories.AppIdentityProviderRepository
+	identityProviderRepository    *repositories.IdentityProviderRepository
 }
 
 func CreateAppService(db *db.Database, redis *redis.Client, vaultEncrypt *crypto.TokenEncryption) *AppService {
@@ -29,6 +30,7 @@ func CreateAppService(db *db.Database, redis *redis.Client, vaultEncrypt *crypto
 		vaultEncrypt:                  vaultEncrypt,
 		appRepository:                 repositories.CreateAppRepository(db.DB),
 		appIdentityProviderRepository: repositories.CreateAppIdentityProviderRepository(db.DB),
+		identityProviderRepository:    repositories.CreateIdentityProviderRepository(db.DB),
 	}
 }
 
@@ -41,7 +43,7 @@ func (s *AppService) CreateApp(ctx *gin.Context) (*string, error, *int) {
 	var err error
 
 	err = s.db.DB.Transaction(func(tx *gorm.DB) error {
-		app, err = s.appRepository.Create(&createAppRequest, user.OrganizationID, tx, s.appIdentityProviderRepository)
+		app, err = s.appRepository.Create(&createAppRequest, user.OrganizationID, tx, s.appIdentityProviderRepository, s.identityProviderRepository)
 		if err != nil {
 			return err
 		}

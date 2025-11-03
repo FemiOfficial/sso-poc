@@ -28,7 +28,9 @@ func CreateAppRepository(db *gorm.DB) *AppRepository {
 func (r *AppRepository) Create(
 	request *appTypes.CreateAppRequest,
 	organizationID string, tx *gorm.DB,
-	appIdentityProviderRepository *AppIdentityProviderRepository) (*entitities.App, error) {
+	appIdentityProviderRepository *AppIdentityProviderRepository,
+	identityProviderRepository *IdentityProviderRepository,
+) (*entitities.App, error) {
 	if tx == nil {
 		tx = r.db
 	}
@@ -43,13 +45,18 @@ func (r *AppRepository) Create(
 		request.Scopes = []entitities.AppScope{entitities.AuthScope, entitities.AuditLogScope, entitities.UserManagementScope}
 	}
 
+	scopes := []string{}
+	for _, scope := range request.Scopes {
+		scopes = append(scopes, string(scope))
+	}
+
 	app := &entitities.App{
 		Name:           request.Name,
 		ClientID:       clientID,
 		ClientSecret:   clientSecret,
 		RedirectURI:    request.RedirectURI,
 		Live:           false,
-		Scopes:         request.Scopes,
+		Scopes:         scopes,
 		MfaEnabled:     request.MfaEnabled,
 		OrganizationID: organizationID,
 	}
@@ -59,9 +66,9 @@ func (r *AppRepository) Create(
 		return nil, err
 	}
 
-	appIdentityProviders := []*entitities.AppIdentityProvider{}
+	identityProviders := []*entitities.IdentityProvider{}
 	if len(request.IdentityProviders) == 0 {
-		appIdentityProviders, err = appIdentityProviderRepository.FindAllByFilter(AppIdentityProviderFilter{
+		identityProviders, err = identityProviderRepository.FindAllByFilter(IdentityProviderFilter{
 			Status:    "active",
 			IsDefault: true,
 		}, tx)
@@ -69,11 +76,22 @@ func (r *AppRepository) Create(
 			return nil, err
 		}
 	} else {
-		appIdentityProviders, err = r.getAppProvidersFromRequest(request, app, appIdentityProviderRepository, tx)
+		identityProviders, err = r.getProvidersFromRequest(request, identityProviderRepository, tx)
 		if err != nil {
 			return nil, err
 		}
 	}
+
+	appIdentityProviders := []*entitities.AppIdentityProvider{}
+	for _, identityProvider := range identityProviders {
+		appIdentityProviders = append(appIdentityProviders, &entitities.AppIdentityProvider{
+			AppID:      app.ID,
+			IdentityProviderID: identityProvider.ID,
+			Status:             "active",
+			Scopes:             identityProvider.Scopes,
+		})
+	}
+
 
 	err = appIdentityProviderRepository.CreateMany(appIdentityProviders, tx)
 	if err != nil {
@@ -102,18 +120,17 @@ func (r *AppRepository) FindOneByFilter(filter AppFilter, tx *gorm.DB) (*entitit
 	return app, query.First(app).Error
 }
 
-func (r *AppRepository) getAppProvidersFromRequest(
+func (r *AppRepository) getProvidersFromRequest(
 	request *appTypes.CreateAppRequest,
-	app *entitities.App,
-	appIdentityProviderRepository *AppIdentityProviderRepository,
-	tx *gorm.DB) ([]*entitities.AppIdentityProvider, error) {
+	identityProviderRepository *IdentityProviderRepository,
+	tx *gorm.DB) ([]*entitities.IdentityProvider, error) {
 
-	appIdentityProviders := []*entitities.AppIdentityProvider{}
+	appIdentityProviders := []*entitities.IdentityProvider{}
 	identityProviderIds := []string{}
 	for _, identityProvider := range request.IdentityProviders {
 		identityProviderIds = append(identityProviderIds, identityProvider.ID)
 	}
-	dbIdentityProviders, err := appIdentityProviderRepository.FindAllByFilter(AppIdentityProviderFilter{
+	dbIdentityProviders, err := identityProviderRepository.FindAllByFilter(IdentityProviderFilter{
 		IDs: identityProviderIds,
 	}, tx)
 
@@ -123,7 +140,7 @@ func (r *AppRepository) getAppProvidersFromRequest(
 
 	for _, dbIdentityProvider := range dbIdentityProviders {
 		requestIdentityProviderIndex := slices.IndexFunc(request.IdentityProviders, func(identityProvider appTypes.IdentityProviders) bool {
-			return identityProvider.ID == dbIdentityProvider.IdentityProviderID
+			return identityProvider.ID == dbIdentityProvider.ID
 		})
 		requestIdentityProvider := request.IdentityProviders[requestIdentityProviderIndex]
 
@@ -134,11 +151,12 @@ func (r *AppRepository) getAppProvidersFromRequest(
 			scopes = dbIdentityProvider.Scopes
 		}
 
-		appIdentityProviders = append(appIdentityProviders, &entitities.AppIdentityProvider{
-			AppID:              app.ID,
-			IdentityProviderID: dbIdentityProvider.IdentityProviderID,
-			Status:             "active",
-			Scopes:             scopes,
+		appIdentityProviders = append(appIdentityProviders, &entitities.IdentityProvider{
+			BaseEntity: entitities.BaseEntity{ID: dbIdentityProvider.ID},
+			Name:       dbIdentityProvider.Name,
+			Scopes:     scopes,
+			Status:     "active",
+			IsDefault:  dbIdentityProvider.IsDefault,
 		})
 	}
 	return appIdentityProviders, nil

@@ -16,7 +16,7 @@ type App struct {
 	ClientSecret      string                `gorm:"not null"`
 	RedirectURI       string                `gorm:"not null"`
 	Live              bool                  `gorm:"not null; default:false"`
-	Scopes            []AppScope            `gorm:"type:text[];not null; default:'{auth,audit_log}'"`
+	Scopes            StringArray            `gorm:"type:text[];not null; default:'{auth,audit_log}'"`
 	IdentityProviders []AppIdentityProvider `gorm:"many2many:app_identity_providers;"`
 	MfaEnabled        bool                  `gorm:"not null"`
 	OrganizationID    string                `gorm:"not null"`
