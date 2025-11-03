@@ -4,25 +4,6 @@ type AppScope string
 type AppIntegration string
 
 const (
-	googleIntegration    AppIntegration = "google"
-	githubIntegration    AppIntegration = "github"
-	facebookIntegration  AppIntegration = "facebook"
-	linkedinIntegration  AppIntegration = "linkedin"
-	slackIntegration     AppIntegration = "slack"
-	teamsIntegration     AppIntegration = "teams"
-	zoomIntegration      AppIntegration = "zoom"
-	whatsappIntegration  AppIntegration = "whatsapp"
-	telegramIntegration  AppIntegration = "telegram"
-	discordIntegration   AppIntegration = "discord"
-	spotifyIntegration   AppIntegration = "spotify"
-	twitchIntegration    AppIntegration = "twitch"
-	redditIntegration    AppIntegration = "reddit"
-	tiktokIntegration    AppIntegration = "tiktok"
-	instagramIntegration AppIntegration = "instagram"
-	twitterIntegration   AppIntegration = "twitter"
-)
-
-const (
 	AuthScope           AppScope = "auth"
 	AuditLogScope       AppScope = "audit_log"
 	UserManagementScope AppScope = "user_management"

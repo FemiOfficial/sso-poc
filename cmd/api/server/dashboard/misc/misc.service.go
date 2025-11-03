@@ -5,6 +5,7 @@ import (
 	"sso-poc/internal/db"
 	"sso-poc/internal/db/entitities"
 	"sso-poc/internal/db/repositories"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,12 +20,16 @@ func CreateMiscService(db *db.Database) *MiscService {
 }
 
 func (s *MiscService) GetIdentityProviders(ctx *gin.Context) (*miscTypes.GetIDPResponse, error) {
-
 	var getIDPRequest miscTypes.GetIDPRequest = ctx.MustGet("request").(miscTypes.GetIDPRequest)
+
+	ids := []string{}
+	if getIDPRequest.IDs != "" {
+		ids = strings.Split(getIDPRequest.IDs, ",")
+	}
 
 	list, err := s.identityProviderRepository.FindAllByFilter(repositories.IdentityProviderFilter{
 		Status: getIDPRequest.Status,
-		IDs:    getIDPRequest.IDs,
+		IDs:    ids,
 		Name:   getIDPRequest.Name,
 		Scopes: getIDPRequest.Scopes,
 	}, nil)

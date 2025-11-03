@@ -5,6 +5,8 @@ import (
 	"io"
 	"os"
 	"sso-poc/internal/db/entitities"
+
+	"gorm.io/gorm"
 )
 
 func (s *Seeder) SeedIdentityProviders() error {
@@ -27,15 +29,25 @@ func (s *Seeder) SeedIdentityProviders() error {
 	defer tx.Rollback()
 
 	for _, identityProvider := range identityProviders {
-		err = tx.Create(&entitities.IdentityProvider{
-			Name:        identityProvider.Name,
-			DisplayName: identityProvider.DisplayName,
-			Scopes:      identityProvider.Scopes,
-			Status:      identityProvider.Status,
-		}).Error
-		if err != nil {
-			return err
+		existsErr := tx.Model(&entitities.IdentityProvider{}).Where("name = ?", identityProvider.Name).First(&entitities.IdentityProvider{}).Error
+		if existsErr == gorm.ErrRecordNotFound {
+
+			scopes := identityProvider.Scopes
+			if len(scopes) == 0 {
+				scopes = nil
+			}
+
+			err = tx.Create(&entitities.IdentityProvider{
+				Name:        identityProvider.Name,
+				DisplayName: identityProvider.DisplayName,
+				Scopes:      scopes,
+				Status:      identityProvider.Status,
+			}).Error
+			if err != nil {
+				return err
+			}
 		}
+
 	}
 
 	return tx.Commit().Error

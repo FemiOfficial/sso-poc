@@ -1,11 +1,12 @@
 package entitities
 
+
 type IdentityProvider struct {
 	BaseEntity
-	Name string `gorm:"not null"`
-	DisplayName string `gorm:"not null"`
-	Scopes []string `gorm:"type:text[];not null"`
-	Status string `gorm:"not null;enum:active,inactive"`
+	Name string `gorm:"not null;unique" json:"name"`
+	DisplayName string `gorm:"not null" json:"display_name"`
+	Scopes StringArray `gorm:"type:text[];null;default:null" json:"scopes"`
+	Status string `gorm:"not null;enum:active,inactive" json:"status"`
 }
 
 func (IdentityProvider) TableName() string {

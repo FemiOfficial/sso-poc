@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	_ "github.com/joho/godotenv/autoload"
 	"sso-poc/internal/db/entitities"
 	"time"
 

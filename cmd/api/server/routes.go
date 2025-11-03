@@ -4,7 +4,9 @@ import (
 	"net/http"
 	"sso-poc/cmd/api/server/auth"
 	"sso-poc/cmd/api/server/dashboard/middlewares"
+	miscTypes "sso-poc/cmd/api/server/dashboard/misc/types"
 	organisationTypes "sso-poc/cmd/api/server/dashboard/organisation/types"
+	appTypes "sso-poc/cmd/api/server/dashboard/app/types"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -54,15 +56,21 @@ func (s *Server) RegisterRoutes() http.Handler {
 			s.organizationController.ResendEmailVerificationOtp)
 	}
 
-	protectedDashboardAPI := routes.Group("/api/dashboard")
-	protectedDashboardAPI.Use(middlewares.JwtMiddleware(s.db))
+	protectedDashboardAPIMisc := routes.Group("/api/dashboard/misc")
+	protectedDashboardAPIMisc.Use(middlewares.JwtMiddleware(s.db))
 	{
-		protectedDashboardAPI.GET("/misc/identity-providers", s.miscController.GetIdentityProviders)
-		// protectedDashboardAPI.POST("/app/create",
-		// 	middlewares.ValidateRequestBody[types.CreateAppRequest](),
-		// 	s.appController.CreateApp)
+		protectedDashboardAPIMisc.GET("/identity-providers",
+			middlewares.ValidateRequestQuery[miscTypes.GetIDPRequest](),
+			s.miscController.GetIdentityProviders)
 	}
 
+	protectedDashboardApps := routes.Group("/api/dashboard/app")
+	protectedDashboardApps.Use(middlewares.JwtMiddleware(s.db))
+	{
+		protectedDashboardApps.POST("/create",
+			middlewares.ValidateRequestBody[appTypes.CreateAppRequest](),
+			s.appController.CreateApp)
+	}
 	// lib := routes.Group("/lib")
 	// {
 	// 	lib.GET("/auth/:provider", s.authHandler)

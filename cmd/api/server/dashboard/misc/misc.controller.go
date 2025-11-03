@@ -12,8 +12,8 @@ type MiscController struct {
 	miscService *MiscService
 }
 
-func CreateMiscController() *MiscController {
-	return &MiscController{}
+func CreateMiscController(miscService *MiscService) *MiscController {
+	return &MiscController{miscService: miscService}
 }
 
 func (c *MiscController) GetIdentityProviders(ctx *gin.Context) {

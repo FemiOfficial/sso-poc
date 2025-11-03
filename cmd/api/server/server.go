@@ -15,6 +15,7 @@ import (
 	"sso-poc/internal/crypto"
 	"sso-poc/cmd/api/server/dashboard/organisation"
 	"sso-poc/cmd/api/server/dashboard/misc"
+	"sso-poc/cmd/api/server/dashboard/app"
 )
 
 type Server struct {
@@ -23,6 +24,7 @@ type Server struct {
 	authController *auth.AuthController
 	organizationController *organisation.OrganizationController
 	miscController *misc.MiscController
+	appController *app.AppController
 }
 
 func NewServer() *http.Server {
@@ -39,6 +41,8 @@ func NewServer() *http.Server {
 		db:             db,
 		authController: auth.CreateAuthController(auth.CreateAuthService(db, redis, vaultEncrypt)),
 		organizationController: organisation.CreateOrganizationController(organisation.CreateOrganizationService(db, redis, vaultEncrypt)),
+		miscController: misc.CreateMiscController(misc.CreateMiscService(db)),
+		appController: app.CreateAppController(app.CreateAppService(db, redis, vaultEncrypt)),
 	}
 
 	// Declare Server config
