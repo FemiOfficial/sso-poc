@@ -4,19 +4,21 @@ import (
 	"errors"
 	"net/http"
 	"sso-poc/internal/db/entitities"
-
-	"gorm.io/gorm"
+	"sso-poc/internal/db/repositories"
 )
 
-func ClientAuthValidator(clientId string, clientSecret string, db *gorm.DB) (app *entitities.App, statusCode int, err error) {
+func ClientAuthValidator(clientId string, clientSecret string, appRepository *repositories.AppRepository) (app *entitities.App, statusCode int, err error) {
 	if clientId == "" || clientSecret == "" {
 		return nil, http.StatusBadRequest, errors.New("client id and client secret are required")
 	}
 
-	app = &entitities.App{}
-	err = db.Where("client_id = ?", clientId).First(app).Error
+	app, err = appRepository.FindOneByFilter(repositories.AppFilter{ClientID: clientId}, nil)
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
+	}
+
+	if app == nil {
+		return nil, http.StatusUnauthorized, errors.New("invalid client id")
 	}
 
 	if app.ClientSecret != clientSecret {

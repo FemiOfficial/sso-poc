@@ -116,6 +116,10 @@ func (r *AppRepository) FindOneByFilter(filter AppFilter, tx *gorm.DB) (*entitit
 		query = query.Where("organization_id = ?", filter.OrganizationID)
 	}
 
+	if filter.ClientID != "" {
+		query = query.Where("client_id = ?", filter.ClientID)
+	}
+
 	app := &entitities.App{}
 	return app, query.First(app).Error
 }

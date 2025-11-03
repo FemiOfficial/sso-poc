@@ -33,7 +33,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	protectedAPI.Use(auth.ClientAuthMiddleware(s.db))
 	{
 		protectedAPI.POST("/auth/initiate", s.authController.InitiateAuthSession)
-		protectedAPI.GET("/auth/profile", s.authController.GetAuthProfileData)
+		// protectedAPI.GET("/auth/profile", s.authController.GetAuthProfileData)
 		protectedAPI.POST("/auth/login", s.authController.LoginUser)
 	}
 

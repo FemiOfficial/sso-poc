@@ -26,55 +26,17 @@ func (s *AuthService) InitiateAuthSession(ctx *gin.Context) (*string, error, int
 	return message, nil, statusCode, data
 }
 
-// func (s *AuthService) LoginUser(ctx *gin.Context) {
-// 	// create new auth with goth
-// 	// begin auth session or complete it if that is the case
-// 	// begin auth will calls .BeginAuth from goth api
+func (s *AuthService) LoginUser(ctx *gin.Context) (*string, error, int, gin.H) {
+	app := ctx.MustGet("app").(*entitities.App)
+	provider := ctx.Query("provider")
+	sessionId := ctx.Query("session_id")
 
-// 	var loginUserRequest types.LoginUserRequest
-// 	if err := ctx.ShouldBindJSON(&loginUserRequest); err != nil {
-// 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-// 		return
-// 	}
-
-// 	provider := loginUserRequest.Provider
-// 	sessionId := loginUserRequest.SessionID
-
-// 	app := ctx.MustGet("app").(*entitities.App)
-
-// 	authRequest := &entitities.AuthRequest{}
-// 	err := s.redis.Get(ctx, sessionId).Scan(authRequest)
-// 	if err != nil {
-// 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid session id, session not found"})
-// 		return
-// 	}
-
-// 	if authRequest.State.Status != "initiated" {
-// 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid session id, session is not yet initiated"})
-// 		return
-// 	}
-
-// 	if !slices.Contains(authRequest.Providers, provider) {
-// 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid provider, provider is not valid for this session"})
-// 		return
-// 	}
-
-// 	callbackURL := fmt.Sprintf("%s/auth/%s/%s/callback", os.Getenv("APP_URL"), provider, sessionId)
-
-// 	appIdentityProvider := &entitities.AppIdentityProvider{}
-// 	s.db.DB.Joins("IdentityProvider").Where("app_id = ?", app.ID).Where("identity_provider.name = ?", provider).First(appIdentityProvider)
-// 	providerInstance, err := CreateProvider(appIdentityProvider, s.vaultEncrypt, callbackURL)
-// 	if err != nil {
-// 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-// 		return
-// 	}
-
-// 	providerInstance.SetName(provider)
-
-// 	goth.UseProviders(providerInstance)
-
-// 	gothic.BeginAuthHandler(ctx.Writer, ctx.Request)
-// }
+	message, err, statusCode, _ := s.authLib.LoginUser(ctx, app, provider, sessionId)
+	if err != nil {
+		return message, err, statusCode, nil
+	}
+	return message, nil, statusCode, nil
+}
 
 // func (s *AuthService) Callback(ctx *gin.Context) {
 // 	provider := ctx.Param("provider")

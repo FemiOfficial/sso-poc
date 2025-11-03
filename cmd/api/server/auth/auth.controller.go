@@ -25,9 +25,15 @@ func (c *AuthController) InitiateAuthSession(ctx *gin.Context) {
 	ctx.JSON(statusCode, utils.GenericApiResponse(statusCode, message, data))
 }
 
-// func(c * AuthController) LoginUser(ctx *gin.Context) {
-// 	c.authService.LoginUser(ctx)
-// }
+func(c * AuthController) LoginUser(ctx *gin.Context) {
+	message, err, statusCode, data := c.authService.LoginUser(ctx)
+	if err != nil {
+		fmt.Println("Error intiating login for user: ", err, statusCode)
+		ctx.JSON(statusCode, utils.GenericApiResponse(statusCode, message, nil))
+		return
+	}
+	ctx.JSON(statusCode, utils.GenericApiResponse(statusCode, message, data))
+}
 
 // func (c * AuthController) Callback(ctx *gin.Context) {
 // 	c.authService.Callback(ctx)

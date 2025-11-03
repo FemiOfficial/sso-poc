@@ -1,28 +1,34 @@
 package auth
 
 import (
+	"fmt"
 	"net/http"
 	"os"
-	"fmt"
+	"slices"
+	"sso-poc/cmd/lib/auth/factories"
 	"sso-poc/internal/crypto"
 	"sso-poc/internal/db"
 	"sso-poc/internal/db/entitities"
-	"time"
+	"sso-poc/internal/db/repositories"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
+	"github.com/markbates/goth"
+	"github.com/markbates/goth/gothic"
 	"github.com/redis/go-redis/v9"
 )
 
 type AuthLib struct {
-	db           *db.Database
-	redis        *redis.Client
-	sessionStore *sessions.CookieStore
-	vaultEncrypt *crypto.TokenEncryption
+	db                            *db.Database
+	redis                         *redis.Client
+	sessionStore                  *sessions.CookieStore
+	vaultEncrypt                  *crypto.TokenEncryption
+	authRequestRepository         *repositories.AuthRequestRepository
+	appIdentityProviderRepository *repositories.AppIdentityProviderRepository
 }
 
-func CreateAuthLib(db *db.Database, redis *redis.Client, vaultEncrypt *crypto.TokenEncryption) *AuthLib {
+func CreateAuthLib(db *db.Database, redis *redis.Client, vaultEncrypt *crypto.TokenEncryption, authRequestRepository *repositories.AuthRequestRepository) *AuthLib {
 	environment := os.Getenv("ENVIRONMENT")
 
 	store := sessions.NewCookieStore([]byte(os.Getenv("SESSION_SECRET")))
@@ -42,16 +48,48 @@ func (lib *AuthLib) InitiateAuthSession(context *gin.Context, app *entitities.Ap
 		State:     entitities.AuthRequestState{Status: "initiated"},
 	}
 
-	err := lib.redis.Set(context, sessionId, authRequest, 60*time.Minute).Err()
+	err := lib.authRequestRepository.Create(authRequest, nil)
 	if err != nil {
-		message := "Something went wrong while initiating auth session"
+		message := "Something went wrong while creating auth request"
 		return &message, err, http.StatusInternalServerError, nil
 	}
-	message := "Auth session initiated successfully"
+
+	message := "Auth request created successfully"
 	data := gin.H{
-		"sessionId": sessionId,
+		"sessionId":   sessionId,
 		"authRequest": authRequest,
-		"link": fmt.Sprintf("%s/auth/%s?session_d=%s", os.Getenv("APP_URL"), providers[0], sessionId),
-	}	
+		"link":        fmt.Sprintf("%s/auth/%s?session_d=%s", os.Getenv("APP_URL"), providers[0], sessionId),
+	}
 	return &message, nil, http.StatusOK, data
+}
+
+func (lib *AuthLib) LoginUser(context *gin.Context, app *entitities.App, provider string, sessionId string) (*string, error, int, gin.H) {
+	authRequest := &entitities.AuthRequest{}
+
+	if authRequest.State.Status != "initiated" {
+		message := "auth request is not initiated"
+		return &message, nil, http.StatusBadRequest, nil
+	}
+
+	if !slices.Contains(authRequest.Providers, provider) {
+		message := "provider is not valid for this session"
+		return &message, nil, http.StatusBadRequest, nil
+	}
+
+	callbackURL := fmt.Sprintf("%s/auth/%s/%s/callback", os.Getenv("APP_URL"), provider, sessionId)
+
+	appIdentityProvider, err := lib.appIdentityProviderRepository.FindOneByFilter(repositories.AppIdentityProviderFilter{AppID: authRequest.AppID, Provider: provider}, nil)
+
+	providerInstance, err := factories.CreateProvider(appIdentityProvider, lib.vaultEncrypt, callbackURL)
+	if err != nil {
+		return nil, err, http.StatusInternalServerError, nil
+	}
+
+	message := "auth request found successfully"
+	providerInstance.SetName(provider)
+
+	goth.UseProviders(providerInstance)
+
+	gothic.BeginAuthHandler(context.Writer, context.Request)
+	return &message, nil, http.StatusOK, nil
 }
