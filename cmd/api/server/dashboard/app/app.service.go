@@ -43,7 +43,12 @@ func (s *AppService) CreateApp(ctx *gin.Context) (*string, error, *int) {
 	var err error
 
 	err = s.db.DB.Transaction(func(tx *gorm.DB) error {
-		app, err = s.appRepository.Create(&createAppRequest, user.OrganizationID, tx, s.appIdentityProviderRepository, s.identityProviderRepository)
+		app, err = s.appRepository.Create(
+			&createAppRequest,
+			user.OrganizationID,
+			tx,
+			s.appIdentityProviderRepository,
+			s.identityProviderRepository)
 		if err != nil {
 			return err
 		}
