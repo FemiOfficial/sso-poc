@@ -63,3 +63,18 @@ func (s *AppService) CreateApp(ctx *gin.Context) (*string, error, *int) {
 	statusCode = http.StatusOK
 	return &app.ID, nil, &statusCode
 }
+
+func (s *AppService) GetApp(ctx *gin.Context) (*entitities.App, error, *int) {
+	var app *entitities.App
+	var statusCode int = http.StatusInternalServerError
+
+	var appId string = ctx.Param("app_id")
+
+	app, err := s.appRepository.FindOneByFilter(repositories.AppFilter{ID: appId}, nil)
+	if err != nil {
+		return nil, err, &statusCode
+	}
+
+	statusCode = http.StatusOK
+	return app, nil, &statusCode
+}
