@@ -18,10 +18,10 @@ const (
 // this will be changed  to hashicorp vault
 type Vault struct {
 	BaseEntity
-	Object    string    `gorm:"type:text;not null"` // encrypted json string
-	Key       VaultKey  `gorm:"type:varchar(255);not null"`
-	OwnerID   string    `gorm:"not null;type:varchar(255)"`
-	OwnerType VaultOwnerType `gorm:"not null;default:organization"`
+	Object    string    `gorm:"type:text;not null" json:"object"` // encrypted json string
+	Key       VaultKey  `gorm:"type:varchar(255);not null" json:"key"`
+	OwnerID   string    `gorm:"not null;type:varchar(255)" json:"owner_id"`
+	OwnerType VaultOwnerType `gorm:"not null;default:organization" json:"owner_type"`
 }
 
 func (Vault) TableName() string {

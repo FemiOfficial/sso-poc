@@ -11,17 +11,17 @@ const (
 
 type App struct {
 	BaseEntity
-	Name              string                `gorm:"not null"`
-	ClientID          string                `gorm:"not null"`
-	ClientSecret      string                `gorm:"not null"`
-	RedirectURI       string                `gorm:"not null"`
-	CallbackURI       string                `gorm:"null; default:null"`
-	Live              bool                  `gorm:"not null; default:false"`
-	Scopes            StringArray            `gorm:"type:text[];not null; default:'{auth,audit_log}'"`
-	IdentityProviders []AppIdentityProvider `gorm:"many2many:app_identity_providers;"`
-	MfaEnabled        bool                  `gorm:"not null"`
-	OrganizationID    string                `gorm:"not null"`
-	Organization      Organization          `gorm:"foreignKey:OrganizationID"`
+	Name              string                `gorm:"not null" json:"name"`
+	ClientID          string                `gorm:"not null" json:"client_id"`
+	ClientSecret      string                `gorm:"not null" json:"client_secret"`
+	RedirectURI       string                `gorm:"not null" json:"redirect_uri"`
+	CallbackURI       string                `gorm:"null; default:null" json:"callback_uri"`
+	Live              bool                  `gorm:"not null; default:false" json:"live"`
+	Scopes            StringArray           `gorm:"type:text[];not null; default:'{auth,audit_log}'" json:"scopes"`
+	AppIdentityProviders []AppIdentityProvider `gorm:"foreignKey:AppID" json:"app_identity_providers"`
+	MfaEnabled        bool                  `gorm:"not null" json:"mfa_enabled"`
+	OrganizationID    string                `gorm:"not null" json:"organization_id"`
+	Organization      *Organization          `gorm:"foreignKey:OrganizationID;references:ID" json:"organization"`
 }
 
 func (App) TableName() string {

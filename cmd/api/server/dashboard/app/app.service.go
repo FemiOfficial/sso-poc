@@ -75,6 +75,17 @@ func (s *AppService) GetApp(ctx *gin.Context) (*entitities.App, error, *int) {
 		return nil, err, &statusCode
 	}
 
+	// appIdentityProviders := app.IdentityProviders
+
 	statusCode = http.StatusOK
 	return app, nil, &statusCode
 }
+
+
+// func (s *AppService) UpdateAppIdentityProvider(ctx *gin.Context) (*string, error, *int) {
+// 	var app *entitities.App
+// 	var statusCode int = http.StatusInternalServerError
+
+// 	var appId string = ctx.Param("app_id")
+// 	// add credentials for providers
+// }

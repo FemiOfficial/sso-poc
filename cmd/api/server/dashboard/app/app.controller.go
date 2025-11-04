@@ -26,3 +26,15 @@ func (c *AppController) CreateApp(ctx *gin.Context) {
 	}
 	ctx.JSON(*statusCode, utils.GenericApiResponse(*statusCode, &message, appId))
 }
+
+func (c *AppController) GetApp(ctx *gin.Context) {
+	app, err, statusCode := c.appService.GetApp(ctx)
+	message := "App fetched successfully"
+	if err != nil {
+		fmt.Println("Error fetching app: ", err, statusCode)
+		message = err.Error()
+		ctx.JSON(*statusCode, utils.GenericApiResponse(*statusCode, &message, nil))
+		return
+	}
+	ctx.JSON(*statusCode, utils.GenericApiResponse(*statusCode, &message, app))
+}

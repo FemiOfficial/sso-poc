@@ -85,13 +85,12 @@ func (r *AppRepository) Create(
 	appIdentityProviders := []*entitities.AppIdentityProvider{}
 	for _, identityProvider := range identityProviders {
 		appIdentityProviders = append(appIdentityProviders, &entitities.AppIdentityProvider{
-			AppID:      app.ID,
+			AppID:              app.ID,
 			IdentityProviderID: identityProvider.ID,
 			Status:             "active",
 			Scopes:             identityProvider.Scopes,
 		})
 	}
-
 
 	err = appIdentityProviderRepository.CreateMany(appIdentityProviders, tx)
 	if err != nil {
@@ -109,19 +108,27 @@ func (r *AppRepository) FindOneByFilter(filter AppFilter, tx *gorm.DB) (*entitit
 	query := tx.Model(&entitities.App{})
 
 	if filter.ID != "" {
-		query = query.Where("id = ?", filter.ID)
+		query = query.Where("apps.id = ?", filter.ID)
 	}
 
 	if filter.OrganizationID != "" {
-		query = query.Where("organization_id = ?", filter.OrganizationID)
+		query = query.Where("apps.organization_id = ?", filter.OrganizationID)
 	}
 
 	if filter.ClientID != "" {
-		query = query.Where("client_id = ?", filter.ClientID)
+		query = query.Where("apps.client_id = ?", filter.ClientID)
 	}
 
 	app := &entitities.App{}
-	return app, query.First(app).Error
+	// app := &entitities.App{}
+	err := query.
+		Joins("LEFT JOIN app_identity_providers ON apps.id = app_identity_providers.app_id").
+		Preload("AppIdentityProviders.IdentityProvider").
+		Preload("AppIdentityProviders.Vault").
+		Order("apps.id").
+		First(app).Error
+
+	return app, err
 }
 
 func (r *AppRepository) getProvidersFromRequest(

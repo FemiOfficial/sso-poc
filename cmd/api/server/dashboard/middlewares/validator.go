@@ -18,12 +18,20 @@ func ValidateRequestBody[T any]() gin.HandlerFunc {
 		if err != nil {
 			if validationErrors, ok := err.(validator.ValidationErrors); ok {
 				errrors := formatValidationErrors(validationErrors)
-				ctx.JSON(http.StatusBadRequest, gin.H{"status": "failed", "message": "invalid request body", "data": errrors})
+				ctx.JSON(http.StatusBadRequest, gin.H{
+					"status":  "failed",
+					"message": "invalid request body",
+					"data":    errrors,
+				})
 				ctx.Abort()
 				return
 			}
 			fmt.Println("Error: ", err)
-			ctx.JSON(http.StatusBadRequest, gin.H{"status": "failed", "message": "invalid request body, please check the request body and try again", "data": err.Error()})
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"status":  "failed",
+				"message": "invalid request body, please check the request body and try again",
+				"data":    err.Error(),
+			})
 			ctx.Abort()
 			return
 		}
@@ -47,9 +55,9 @@ func ValidateRequestQuery[T any]() gin.HandlerFunc {
 
 			fmt.Println("Error: ", err)
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"status": "failed", 
-				"message": "invalid request query, please check the request query and try again", 
-				"data": err.Error(),
+				"status":  "failed",
+				"message": "invalid request query, please check the request query and try again",
+				"data":    err.Error(),
 			})
 			ctx.Abort()
 			return

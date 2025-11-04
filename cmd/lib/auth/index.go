@@ -44,7 +44,7 @@ func (lib *AuthLib) InitiateAuthSession(context *gin.Context, app *entitities.Ap
 	authRequest := &entitities.AuthRequest{
 		SessionID: sessionId,
 		AppID:     app.ID,
-		Providers: providers,
+		ProviderIDs: providers,
 		State:     entitities.AuthRequestState{Status: "initiated"},
 	}
 
@@ -71,7 +71,7 @@ func (lib *AuthLib) LoginUser(context *gin.Context, app *entitities.App, provide
 		return &message, nil, http.StatusBadRequest, nil
 	}
 
-	if !slices.Contains(authRequest.Providers, provider) {
+	if !slices.Contains(authRequest.ProviderIDs, provider) {
 		message := "provider is not valid for this session"
 		return &message, nil, http.StatusBadRequest, nil
 	}

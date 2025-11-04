@@ -70,6 +70,9 @@ func (s *Server) RegisterRoutes() http.Handler {
 		protectedDashboardApps.POST("/create",
 			middlewares.ValidateRequestBody[appTypes.CreateAppRequest](),
 			s.appController.CreateApp)
+
+		protectedDashboardApps.GET("/:app_id",
+			s.appController.GetApp)
 	}
 	// lib := routes.Group("/lib")
 	// {

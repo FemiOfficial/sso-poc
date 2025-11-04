@@ -10,7 +10,6 @@ import (
 )
 
 func (s *Seeder) SeedIdentityProviders() error {
-
 	jsonFile, err := os.Open("internal/db/seeds/data/idp.json")
 	if err != nil {
 		return err
@@ -46,8 +45,23 @@ func (s *Seeder) SeedIdentityProviders() error {
 			if err != nil {
 				return err
 			}
+		}  
+		
+		if existsErr == nil {
+			credentials := identityProvider.CredentialFields
+			if len(credentials) > 0 {
+				existsIdentityProvider := &entitities.IdentityProvider{}
+				err = tx.Model(&entitities.IdentityProvider{}).Where("name = ?", identityProvider.Name).First(existsIdentityProvider).Error
+				if err != nil {
+					return err
+				}
+				existsIdentityProvider.CredentialFields = credentials
+				err = tx.Save(existsIdentityProvider).Error
+				if err != nil {
+					return err
+				}
+			}
 		}
-
 	}
 
 	return tx.Commit().Error
