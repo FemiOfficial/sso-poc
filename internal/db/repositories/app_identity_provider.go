@@ -39,19 +39,21 @@ func (r *AppIdentityProviderRepository) FindOneByFilter(filter AppIdentityProvid
 	query := tx.Model(&entitities.AppIdentityProvider{}).Preload("IdentityProvider")
 
 	if filter.ID != "" {
-		query = query.Where("id = ?", filter.ID)
+		query = query.Where("app_identity_providers.id = ?", filter.ID)
 	}
 
 	if filter.AppID != "" {
-		query = query.Where("app_id = ?", filter.AppID)
+		query = query.Where("app_identity_providers.app_id = ?", filter.AppID)
 	}
 
 	if filter.Provider != "" {
-		query = query.Where("identity_provider.name = ?", filter.Provider)
+		query = query.Where("app_identity_providers.identity_provider_id = ?", filter.Provider)
 	}
 
 	appIdentityProvider := &entitities.AppIdentityProvider{}
-	return appIdentityProvider, query.First(appIdentityProvider).Error
+	return appIdentityProvider, query.Joins("LEFT JOIN vaults ON app_identity_providers.vault_id = vaults.id").
+		Preload("Vault").
+		First(appIdentityProvider).Error
 }
 
 func (r *AppIdentityProviderRepository) FindAllByFilter(filter AppIdentityProviderFilter, tx *gorm.DB) ([]*entitities.AppIdentityProvider, error) {
@@ -83,4 +85,12 @@ func (r *AppIdentityProviderRepository) FindAllByFilter(filter AppIdentityProvid
 
 	appIdentityProviders := []*entitities.AppIdentityProvider{}
 	return appIdentityProviders, query.Find(&appIdentityProviders).Error
+}
+
+func (r *AppIdentityProviderRepository) UpdateVaultId(appIdentityProviderId string, vaultId string, tx *gorm.DB) error {
+	if tx == nil {
+		tx = r.db
+	}
+
+	return tx.Model(&entitities.AppIdentityProvider{}).Where("id = ?", appIdentityProviderId).Update("vault_id", vaultId).Error
 }

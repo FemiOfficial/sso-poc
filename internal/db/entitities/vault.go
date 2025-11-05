@@ -6,6 +6,7 @@ type VaultKey string
 const (
 	OrganizationVerificationSecret VaultKey = "organization_verification_secret"
 	UserVerificationSecret VaultKey = "user_verification_secret"
+	AppIdentityProviderCredentials VaultKey = "app_identity_provider_credentials"
 )
 
 const (

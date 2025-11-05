@@ -44,7 +44,7 @@ func CreateOrganizationService(db *db.Database, redis *redis.Client, vaultEncryp
 		vaultEncrypt:           vaultEncrypt,
 		organisationRepository: repositories.CreateOrganisationRepository(db.DB),
 		userRepository:         repositories.CreateUserRepository(db.DB),
-		vaultRepository:        repositories.CreateVaultRepository(db.DB),
+		vaultRepository:        repositories.CreateVaultRepository(db.DB, vaultEncrypt),
 	}
 }
 

@@ -7,6 +7,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func GenericErrorMessages() map[int]string {
+	return map[int]string{
+		500: "Something went wrong please try again",
+		401: "Unauthorized request",
+		404: "Not Found",
+	}
+}
+
 func GenericApiResponse(code int, message *string, data any) gin.H {
 	result := gin.H{}
 
@@ -26,6 +34,21 @@ func GenericApiResponse(code int, message *string, data any) gin.H {
 	}
 
 	return result
+}
+
+func ConvertToSet(values []string) []string {
+
+	tracker := make(map[string]bool)
+	scopeSet := []string{}
+	for _, value := range values {
+		if tracker[value] {
+			continue
+		}
+		tracker[value] = true
+		scopeSet = append(scopeSet, value)
+	}
+
+	return scopeSet
 }
 
 func getDefaultMessage(code int, message *string) string {

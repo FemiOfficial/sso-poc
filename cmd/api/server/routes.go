@@ -73,6 +73,10 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 		protectedDashboardApps.GET("/:app_id",
 			s.appController.GetApp)
+
+		protectedDashboardApps.PUT("/:app_id/identity-provider",
+			middlewares.ValidateRequestBody[appTypes.UpdateAppIdentityProviderRequest](),
+			s.appController.UpdateAppIdentityProvider)
 	}
 	// lib := routes.Group("/lib")
 	// {

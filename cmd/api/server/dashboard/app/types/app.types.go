@@ -44,5 +44,6 @@ type AppIdentityProviderCredentials struct {
 type UpdateAppIdentityProviderRequest struct {
 	ID string `json:"id" binding:"required"`
 	Scopes []string `json:"scopes" binding:"omitempty,min=1,max=2"`
-	Credentials []AppIdentityProviderCredentials `json:"credentials" binding:"omitempty,min=1,max=2"`
+	// ProviderScopes []string `json:"provider_scopes" binding:"omitempty,min=1,max=2"`
+	ProviderCredentials []AppIdentityProviderCredentials `json:"provider_credentials" binding:"omitempty,min=1,max=2"`
 }

@@ -38,3 +38,14 @@ func (c *AppController) GetApp(ctx *gin.Context) {
 	}
 	ctx.JSON(*statusCode, utils.GenericApiResponse(*statusCode, &message, app))
 }
+
+func (c *AppController) UpdateAppIdentityProvider(ctx *gin.Context) {
+	message, err, statusCode := c.appService.UpdateAppIdentityProvider(ctx)
+	if err != nil {
+		fmt.Println("Error updating app identity provider: ", err, statusCode)
+		message := err.Error()
+		ctx.JSON(*statusCode, utils.GenericApiResponse(*statusCode, &message, nil))
+		return
+	}
+	ctx.JSON(*statusCode, utils.GenericApiResponse(*statusCode, message, message))
+}
