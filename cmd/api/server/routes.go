@@ -4,7 +4,9 @@ import (
 	"net/http"
 	"sso-poc/cmd/api/server/auth"
 	"sso-poc/cmd/api/server/dashboard/middlewares"
-	"sso-poc/cmd/api/server/dashboard/organisation/types"
+	miscTypes "sso-poc/cmd/api/server/dashboard/misc/types"
+	organisationTypes "sso-poc/cmd/api/server/dashboard/organisation/types"
+	appTypes "sso-poc/cmd/api/server/dashboard/app/types"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -31,30 +33,51 @@ func (s *Server) RegisterRoutes() http.Handler {
 	protectedAPI.Use(auth.ClientAuthMiddleware(s.db))
 	{
 		protectedAPI.POST("/auth/initiate", s.authController.InitiateAuthSession)
-		protectedAPI.GET("/auth/profile", s.authController.GetAuthProfileData)
+		// protectedAPI.GET("/auth/profile", s.authController.GetAuthProfileData)
 		protectedAPI.POST("/auth/login", s.authController.LoginUser)
 	}
 
 	dashboardAPI := routes.Group("/api/dashboard")
-	// dashboardAPI.Use(auth.ClientAuthMiddleware(s.db))
 	{
 		dashboardAPI.POST("/organisation/create",
-			middlewares.ValidateRequestBody[types.CreateOrganizationRequest](),
+			middlewares.ValidateRequestBody[organisationTypes.CreateOrganizationRequest](),
 			s.organizationController.CreateOrganization)
 
 		dashboardAPI.POST("/organisation/verifification/email",
-			middlewares.ValidateRequestBody[types.VerifyEmailRequest](),
+			middlewares.ValidateRequestBody[organisationTypes.VerifyEmailRequest](),
 			s.organizationController.VerifyOrganizationEmail)
 
 		dashboardAPI.POST("/organisation/signin",
-			middlewares.ValidateRequestBody[types.LoginOrganizationRequest](),
+			middlewares.ValidateRequestBody[organisationTypes.LoginOrganizationRequest](),
 			s.organizationController.LoginOrganization)
 
 		dashboardAPI.POST("/organisation/verification/email/resend",
-			middlewares.ValidateRequestBody[types.ResendEmailVerificationOtpRequest](),
-			s.organizationController.LoginOrganization)
+			middlewares.ValidateRequestBody[organisationTypes.ResendEmailVerificationOtpRequest](),
+			s.organizationController.ResendEmailVerificationOtp)
 	}
 
+	protectedDashboardAPIMisc := routes.Group("/api/dashboard/misc")
+	protectedDashboardAPIMisc.Use(middlewares.JwtMiddleware(s.db))
+	{
+		protectedDashboardAPIMisc.GET("/identity-providers",
+			middlewares.ValidateRequestQuery[miscTypes.GetIDPRequest](),
+			s.miscController.GetIdentityProviders)
+	}
+
+	protectedDashboardApps := routes.Group("/api/dashboard/app")
+	protectedDashboardApps.Use(middlewares.JwtMiddleware(s.db))
+	{
+		protectedDashboardApps.POST("/create",
+			middlewares.ValidateRequestBody[appTypes.CreateAppRequest](),
+			s.appController.CreateApp)
+
+		protectedDashboardApps.GET("/:app_id",
+			s.appController.GetApp)
+
+		protectedDashboardApps.PUT("/:app_id/identity-provider",
+			middlewares.ValidateRequestBody[appTypes.UpdateAppIdentityProviderRequest](),
+			s.appController.UpdateAppIdentityProvider)
+	}
 	// lib := routes.Group("/lib")
 	// {
 	// 	lib.GET("/auth/:provider", s.authHandler)

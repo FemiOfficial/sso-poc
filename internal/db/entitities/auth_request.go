@@ -40,11 +40,11 @@ func (a *AuthRequestState) Scan(value interface{}) error {
 
 type AuthRequest struct {
 	BaseEntity
-	SessionID string           `gorm:"not null"`
-	AppID     string           `gorm:"not null"`
-	App       App              `gorm:"foreignKey:AppID"`
-	Providers []string         `gorm:"not null;type:text[]"`
-	State     AuthRequestState `gorm:"not null"`
+	SessionID string                `gorm:"not null" json:"session_id"`
+	AppID     string                `gorm:"not null" json:"app_id"`
+	App       *App                   `gorm:"foreignKey:AppID" json:"app"`
+	ProviderIDs StringArray      `gorm:"type:text[];not null" json:"provider_ids"`
+	State     AuthRequestState      `gorm:"not null" json:"state"`
 }
 
 func (AuthRequest) TableName() string {

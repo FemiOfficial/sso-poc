@@ -10,17 +10,24 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 
 	"sso-poc/cmd/api/server/auth"
-	"sso-poc/internal/cache"
-	"sso-poc/internal/db"
-	"sso-poc/internal/crypto"
+	"sso-poc/cmd/api/server/dashboard/app"
+	"sso-poc/cmd/api/server/dashboard/misc"
 	"sso-poc/cmd/api/server/dashboard/organisation"
+	"sso-poc/internal/cache"
+	"sso-poc/internal/crypto"
+	"sso-poc/internal/db"
+	"sso-poc/internal/db/repositories"
+	authLib "sso-poc/cmd/lib/auth"
 )
 
 type Server struct {
-	port int
-	db             *db.Database
-	authController *auth.AuthController
+	port                   int
+	db                     *db.Database
+	authLib                *authLib.AuthLib
+	authController         *auth.AuthController
 	organizationController *organisation.OrganizationController
+	miscController         *misc.MiscController
+	appController          *app.AppController
 }
 
 func NewServer() *http.Server {
@@ -28,15 +35,19 @@ func NewServer() *http.Server {
 	db := db.InitializeDB()
 	redis := cache.CreateRedisClient()
 	vaultEncrypt, err := crypto.NewTokenEncryption()
+	authLib := authLib.CreateAuthLib(db, redis, vaultEncrypt, repositories.CreateAuthRequestRepository(db.DB))
+
 	if err != nil {
 		panic(fmt.Sprintf("Failed to create vault helper: %v", err))
 	}
 	NewServer := &Server{
 		port: port,
 		// auth:           auth.NewAuth(),
-		db:             db,
-		authController: auth.CreateAuthController(auth.CreateAuthService(db, redis, vaultEncrypt)),
+		db:                     db,
+		authController:         auth.CreateAuthController(auth.CreateAuthService(authLib)),
 		organizationController: organisation.CreateOrganizationController(organisation.CreateOrganizationService(db, redis, vaultEncrypt)),
+		miscController:         misc.CreateMiscController(misc.CreateMiscService(db)),
+		appController:          app.CreateAppController(app.CreateAppService(db, redis, vaultEncrypt)),
 	}
 
 	// Declare Server config

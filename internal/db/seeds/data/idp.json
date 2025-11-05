@@ -1,0 +1,77 @@
+[{
+    "name": "google",
+    "display_name": "Google",
+    "scopes": [],
+    "status": "active"
+  },
+  {
+    "name": "facebook",
+    "display_name": "Facebook",
+    "scopes": [],
+    "status": "active",
+    "credentials": ["key", "secret"]
+  },
+  {
+    "name": "linkedin",
+    "display_name": "LinkedIn",
+    "scopes": [],
+    "status": "active",
+    "credentials": ["key", "secret"]
+  },
+   {
+    "name": "github",
+    "display_name": "GitHub",
+    "scopes": [],
+    "status": "active",
+    "credentials": ["key", "secret"]
+  },
+  {
+    "name": "twitter",
+    "display_name": "Twitter (X)",
+    "scopes": [],
+    "status": "active",
+    "credentials": ["key", "secret"]
+  },
+  {
+    "name": "microsoft",
+    "display_name": "Microsoft",
+    "scopes": [],
+    "status": "active",
+    "credentials": ["online_key", "online_secret"]
+  },
+  {
+    "name": "apple",
+    "display_name": "Apple",
+    "scopes": ["name", "email"],
+    "status": "active",
+    "credentials": ["key", "secret"]
+  },
+  {
+    "name": "amazon",
+    "display_name": "Amazon",
+    "scopes": [],
+    "status": "active",
+    "credentials": ["key", "secret"]
+  },
+  {
+    "name": "okta",
+    "display_name": "Okta",
+    "scopes": ["openid", "profile", "email"],
+    "status": "active",
+    "credentials": ["id", "secret", "domain"]
+  },
+  {
+    "name":  "openid",
+    "display_name": "OpenID",
+    "scopes": ["openid", "profile", "email"],
+    "status": "active",
+    "credentials": ["key", "secret", "discovery_url"]
+  },
+  {
+    "name": "auth0",
+    "display_name": "Auth0",
+    "scopes": [],
+    "status": "active",
+    "credentials": ["domain"]
+  }
+]

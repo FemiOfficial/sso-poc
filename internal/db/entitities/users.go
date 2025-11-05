@@ -4,15 +4,15 @@ import "time"
 
 type User struct {
 	BaseEntity
-	FirstName       string       `gorm:"not null"`
-	LastName        string       `gorm:"not null"`
-	Email           string       `gorm:"not null; unique"`
-	Password        string       `gorm:"type:varchar(255); null"`
-	MfaEnabled      bool         `gorm:"default:false"`
-	EmailVerified   bool         `gorm:"default:false"`
-	EmailVerifiedAt time.Time    `gorm:"type:timestamp; null; default:null"`
-	OrganizationID  string       `gorm:"not null"`
-	Organization    Organization `gorm:"foreignKey:OrganizationID;references:ID"`
+	FirstName       string       `gorm:"not null" json:"first_name"`
+	LastName        string       `gorm:"not null" json:"last_name"`
+	Email           string       `gorm:"not null; unique" json:"email"`
+	Password        string       `gorm:"type:varchar(255); null" json:"password"`
+	MfaEnabled      bool         `gorm:"default:false" json:"mfa_enabled"`
+	EmailVerified   bool         `gorm:"default:false" json:"email_verified"`
+	EmailVerifiedAt time.Time    `gorm:"type:timestamp; null; default:null" json:"email_verified_at"`
+	OrganizationID  string       `gorm:"not null" json:"organization_id"`
+	Organization    *Organization `gorm:"foreignKey:OrganizationID;references:ID" json:"organization"`
 }
 
 func (User) TableName() string {
