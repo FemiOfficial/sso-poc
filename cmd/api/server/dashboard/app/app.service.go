@@ -216,7 +216,6 @@ func (s *AppService) UpdateAppIdentityProvider(ctx *gin.Context) (*string, error
 }
 
 func (s *AppService) saveCredentialsToVault(appIdentityProvider *entitities.AppIdentityProvider, tx *gorm.DB, credentials []appTypes.AppIdentityProviderCredentials) error {
-
 	vaultObject := make(map[string]string)
 	for _, credential := range credentials {
 		vaultObject[credential.Key] = credential.Value
