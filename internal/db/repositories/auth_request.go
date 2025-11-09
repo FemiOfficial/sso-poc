@@ -38,7 +38,5 @@ func (r *AuthRequestRepository) FindByFilter(filter AuthRequestFilter, tx *gorm.
 	}
 
 	authRequest := &entitities.AuthRequest{}
-	return authRequest,
-		query.First(authRequest).Preload("App").Preload("App.IdentityProviders.IdentityProvider").Where("app_identity_providers.id = ANY(?)",
-			authRequest.ProviderIDs).Error
+	return authRequest, query.First(authRequest).Preload("AuthIdentityProviders.IdentityProvider").Error
 }

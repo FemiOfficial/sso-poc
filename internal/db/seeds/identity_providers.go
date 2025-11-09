@@ -56,6 +56,7 @@ func (s *Seeder) SeedIdentityProviders() error {
 					return err
 				}
 				existsIdentityProvider.CredentialFields = credentials
+				existsIdentityProvider.Logo = identityProvider.Logo
 				err = tx.Save(existsIdentityProvider).Error
 				if err != nil {
 					return err

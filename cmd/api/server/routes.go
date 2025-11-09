@@ -3,10 +3,11 @@ package server
 import (
 	"net/http"
 	"sso-poc/cmd/api/server/auth"
+	appTypes "sso-poc/cmd/api/server/dashboard/app/types"
 	"sso-poc/cmd/api/server/dashboard/middlewares"
+	publicMiddlewares "sso-poc/cmd/api/middlewares"
 	miscTypes "sso-poc/cmd/api/server/dashboard/misc/types"
 	organisationTypes "sso-poc/cmd/api/server/dashboard/organisation/types"
-	appTypes "sso-poc/cmd/api/server/dashboard/app/types"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -27,6 +28,17 @@ func (s *Server) RegisterRoutes() http.Handler {
 	api := routes.Group("/api")
 	{
 		api.GET("/health", s.healthHandler)
+		// Public auth endpoints for widget
+
+	publicApi := api.Group("/widget")
+	publicApi.Use(publicMiddlewares.WidgetAuthMiddleware())
+	{
+		publicApi.GET("/auth/session/:sessionId", s.authController.ResolveSession)
+		publicApi.POST("/auth/session/:sessionId/login", s.authController.LoginUserWithSession)
+	}
+
+		api.GET("/auth/session/:sessionId", s.authController.ResolveSession)
+		api.POST("/auth/session/:sessionId/login", s.authController.LoginUserWithSession)
 	}
 
 	protectedAPI := routes.Group("/api")

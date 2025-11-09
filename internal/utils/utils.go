@@ -69,10 +69,29 @@ func getDefaultMessage(code int, message *string) string {
 		return "Something went wrong"
 	}
 }
+
 func GenerateRandomString(length int) (string, error) {
 	buf := make([]byte, length)
 	if _, err := rand.Read(buf); err != nil {
 		return "", err
 	}
 	return base32.StdEncoding.EncodeToString(buf), nil
+}
+
+func Contains(base []string, subset []string) bool {
+	if len(subset) == 0 {
+		return true
+	}
+
+	seen := make(map[string]struct{}, len(base))
+	for _, n := range base {
+		seen[n] = struct{}{}
+	}
+
+	for _, c := range subset {
+		if _, ok := seen[c]; !ok {
+			return false
+		}
+	}
+	return true
 }
