@@ -3,6 +3,7 @@ package auth
 import (
 	"net/http"
 	"sso-poc/cmd/lib/auth"
+	authTypes "sso-poc/cmd/lib/auth/types"
 	"sso-poc/internal/db/entitities"
 
 	"github.com/gin-gonic/gin"
@@ -41,17 +42,17 @@ func (s *AuthService) ResolveSession(ctx *gin.Context) (*string, error, int, gin
 	return &message, nil, http.StatusOK, data
 }
 
-func (s *AuthService) LoginUser(ctx *gin.Context) (*string, error, int, gin.H) {
-	app := ctx.MustGet("app").(*entitities.App)
-	provider := ctx.Query("provider")
-	sessionId := ctx.Query("session_id")
+// func (s *AuthService) LoginUser(ctx *gin.Context) (*string, error, int, gin.H) {
+// 	app := ctx.MustGet("app").(*entitities.App)
+// 	provider := ctx.Query("provider")
+// 	sessionId := ctx.Query("session_id")
 
-	message, err, statusCode, _ := s.authLib.LoginUser(ctx, app, provider, sessionId)
-	if err != nil {
-		return message, err, statusCode, nil
-	}
-	return message, nil, statusCode, nil
-}
+// 	message, err, statusCode, _ := s.authLib.LoginUser(ctx, app, providerObject, sessionId)
+// 	if err != nil {
+// 		return message, err, statusCode, nil
+// 	}
+// 	return message, nil, statusCode, nil
+// }
 
 func (s *AuthService) LoginUserWithSession(ctx *gin.Context) (*string, error, int, gin.H) {
 	sessionId := ctx.Param("sessionId")
@@ -64,15 +65,33 @@ func (s *AuthService) LoginUserWithSession(ctx *gin.Context) (*string, error, in
 		return &message, err, 404, nil
 	}
 
+	if provider == "" {
+		message := "Provider is required"
+		return &message, nil, 400, nil
+	}
+
+	providerObject := &authTypes.SessionProviders{}
+	for _, _provider := range authRequest.Providers {
+		if _provider.Name == provider {
+			providerObject = &_provider
+			break
+		}
+	}
+
+	if providerObject == nil {
+		message := "Invalid provider"
+		return &message, nil, http.StatusBadRequest, nil
+	}
+
 	// Get app from authRequest
 	app := &entitities.App{}
 	err = s.authLib.GetDB().DB.Where("id = ?", authRequest.AppID).First(app).Error
 	if err != nil {
 		message := "App not found"
-		return &message, err, 404, nil
+		return &message, err, http.StatusNotFound, nil
 	}
 
-	message, err, statusCode, _ := s.authLib.LoginUser(ctx, app, provider, sessionId)
+	message, err, statusCode, _ := s.authLib.LoginUser(ctx, app, providerObject, sessionId)
 	if err != nil {
 		return message, err, statusCode, nil
 	}

@@ -20,3 +20,10 @@ func (r *AuthIdentityProviderRepository) Create(authIdentityProvider *entitities
 	}
 	return tx.Create(authIdentityProvider).Error
 }
+
+func (r *AuthIdentityProviderRepository) CreateMany(authIdentityProviders []entitities.AuthIdentityProvider, tx *gorm.DB) error {
+	if tx == nil {
+		tx = r.db
+	}
+	return tx.CreateInBatches(authIdentityProviders, 100).Error
+}

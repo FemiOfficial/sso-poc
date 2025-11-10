@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"slices"
 	"sso-poc/cmd/lib/auth/factories"
 	"sso-poc/cmd/lib/auth/types"
 	"sso-poc/internal/crypto"
@@ -79,6 +78,7 @@ func (lib *AuthLib) InitiateAuthSession(context *gin.Context,
 
 	err := lib.GetDB().DB.Transaction(func(tx *gorm.DB) error {
 		authIdentityProviders := []entitities.AuthIdentityProvider{}
+
 		providersQuery := repositories.AppIdentityProviderFilter{AppID: app.ID}
 
 		if len(providers) == 0 || providers[0] != "" {
@@ -101,16 +101,12 @@ func (lib *AuthLib) InitiateAuthSession(context *gin.Context,
 				IdentityProviderID: appIdentityProvider.IdentityProvider.ID,
 			}
 
-			// TODO: make this better not multiple creates
-			err := lib.authIdentityProviderRepository.Create(authIdentityProvider, tx)
 			authIdentityProviders = append(authIdentityProviders, *authIdentityProvider)
-			if err != nil {
-				return err
-			}
 		}
 
 		authRequest.AuthIdentityProviders = authIdentityProviders
-		err = tx.Save(authRequest).Error
+
+		err = lib.authIdentityProviderRepository.CreateMany(authIdentityProviders, tx)
 		if err != nil {
 			return err
 		}
@@ -167,7 +163,7 @@ func (lib *AuthLib) ResolveSession(sessionId string) (*types.ResolveSessionRespo
 	}, nil
 }
 
-func (lib *AuthLib) LoginUser(context *gin.Context, app *entitities.App, provider string, sessionId string) (*string, error, int, gin.H) {
+func (lib *AuthLib) LoginUser(context *gin.Context, app *entitities.App, providerObject *types.SessionProviders, sessionId string) (*string, error, int, gin.H) {
 	authRequest, err := lib.authRequestRepository.FindByFilter(repositories.AuthRequestFilter{SessionID: sessionId}, nil)
 	if err != nil {
 		message := "auth request not found"
@@ -179,21 +175,11 @@ func (lib *AuthLib) LoginUser(context *gin.Context, app *entitities.App, provide
 		return &message, nil, http.StatusBadRequest, nil
 	}
 
-	providerIds := []string{}
-	for _, authRequestProvider := range authRequest.AuthIdentityProviders {
-		providerIds = append(providerIds, authRequestProvider.IdentityProvider.ID)
-	}
-
-	if !slices.Contains(providerIds, provider) {
-		message := "provider is not valid for this session"
-		return &message, nil, http.StatusBadRequest, nil
-	}
-
-	callbackURL := fmt.Sprintf("%s/auth/%s/%s/callback", os.Getenv("APP_URL"), provider, sessionId)
+	callbackURL := fmt.Sprintf("%s/auth/%s/%s/callback", os.Getenv("APP_URL"), providerObject.Name, sessionId)
 
 	appIdentityProvider, err := lib.appIdentityProviderRepository.FindOneByFilter(repositories.AppIdentityProviderFilter{
 		AppID:    authRequest.AppID,
-		Provider: provider,
+		Provider: providerObject.ID,
 	}, nil)
 	if err != nil {
 		message := "provider configuration not found"
@@ -204,12 +190,10 @@ func (lib *AuthLib) LoginUser(context *gin.Context, app *entitities.App, provide
 	if err != nil {
 		return nil, err, http.StatusInternalServerError, nil
 	}
-
-	message := "auth request found successfully"
-	providerInstance.SetName(provider)
+	providerInstance.SetName(providerObject.Name)
 
 	goth.UseProviders(providerInstance)
 
 	gothic.BeginAuthHandler(context.Writer, context.Request)
-	return &message, nil, http.StatusOK, nil
+	return nil, nil, http.StatusTemporaryRedirect, nil
 }

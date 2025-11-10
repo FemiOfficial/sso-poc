@@ -70,6 +70,76 @@ func (s *AppService) CreateApp(ctx *gin.Context) (*string, error, *int) {
 	return &app.ID, nil, &statusCode
 }
 
+func (s *AppService) AddAppIdentityProvider(ctx *gin.Context) (*string, error, *int) {
+	var app *entitities.App
+	var statusCode int = http.StatusInternalServerError
+
+	var user *utils.CustomClaims = ctx.MustGet("user").(*utils.CustomClaims)
+
+	var appId string = ctx.Param("app_id")
+	var request appTypes.AppIdentityProviderRequest = ctx.MustGet("request").(appTypes.AppIdentityProviderRequest)
+
+	tx := s.db.DB.Begin()
+	defer tx.Rollback()
+
+	app, err := s.appRepository.FindOneByFilter(repositories.AppFilter{
+		ID:             appId,
+		OrganizationID: user.OrganizationID,
+	}, tx)
+	if err != nil {
+		return nil, err, &statusCode
+	}
+	if app == nil {
+		statusCode = http.StatusNotFound
+		return nil, errors.New("app not found"), &statusCode
+	}
+
+	identityProvider, err := s.identityProviderRepository.FindOneByFilter(repositories.IdentityProviderFilter{
+		ID: request.ID,
+	}, tx)
+	if err != nil {
+		return nil, err, &statusCode
+	}
+	if identityProvider == nil {
+		statusCode = http.StatusNotFound
+		return nil, errors.New("identity provider not found"), &statusCode
+	}
+
+	// compare scope with identity scopes
+	if !utils.Contains(identityProvider.Scopes, request.Scopes) {
+		statusCode = http.StatusBadRequest
+		return nil, errors.New("ensure all scopes are valid for this identity provider"), &statusCode
+	}
+
+	appIdentityProvider := &entitities.AppIdentityProvider{
+		AppID:              app.ID,
+		IdentityProviderID: identityProvider.ID,
+		Status:             "active",
+		Scopes:             request.Scopes,
+	}
+
+	err = s.appIdentityProviderRepository.Create(appIdentityProvider, tx)
+	if err != nil {
+		return nil, err, &statusCode
+	}
+
+	if len(request.ProviderCredentials) > 0 {
+		err = s.saveCredentialsToVault(appIdentityProvider, tx, request.ProviderCredentials)
+		if err != nil {
+			return nil, err, &statusCode
+		}
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return nil, err, &statusCode
+	}
+
+	statusCode = http.StatusOK
+	message := "app identity provider added successfully"
+	return &message, nil, &statusCode
+}
+
 func (s *AppService) GetApp(ctx *gin.Context) (*entitities.App, error, *int) {
 	var app *entitities.App
 	var statusCode int = http.StatusInternalServerError
@@ -93,7 +163,7 @@ func (s *AppService) UpdateAppIdentityProvider(ctx *gin.Context) (*string, error
 
 	var appId string = ctx.Param("app_id")
 	var user *utils.CustomClaims = ctx.MustGet("user").(*utils.CustomClaims)
-	var request appTypes.UpdateAppIdentityProviderRequest = ctx.MustGet("request").(appTypes.UpdateAppIdentityProviderRequest)
+	var request appTypes.AppIdentityProviderRequest = ctx.MustGet("request").(appTypes.AppIdentityProviderRequest)
 
 	tx := s.db.DB.Begin()
 	defer tx.Rollback()
