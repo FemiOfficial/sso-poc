@@ -6,17 +6,9 @@ import (
 	"fmt"
 )
 
-type AuthRequestStateData struct {
-	Email      *string `json:"email,omitempty"`
-	FirstName  *string `json:"first_name,omitempty"`
-	LastName   *string `json:"last_name,omitempty"`
-	AvatarURL  *string `json:"avatar_url,omitempty"`
-	ProviderID *string `json:"provider_id,omitempty"`
-}
-
 type AuthRequestState struct {
-	Status string                          `json:"status" gorm:"not null;enum:initiated,auth_id_opened,auth_failed,auth_completed"`
-	Data   map[string]AuthRequestStateData `json:"data" gorm:"type:jsonb"`
+	Status string         `json:"status" gorm:"not null;enum:initiated,auth_id_opened,auth_failed,auth_completed"`
+	Data   map[string]any `json:"data" gorm:"type:jsonb"`
 }
 
 // Value implements the driver.Valuer interface for database storage
@@ -40,11 +32,11 @@ func (a *AuthRequestState) Scan(value interface{}) error {
 
 type AuthRequest struct {
 	BaseEntity
-	SessionID string                `gorm:"not null" json:"session_id"`
-	AppID     string                `gorm:"not null" json:"app_id"`
-	App       *App                   `gorm:"foreignKey:AppID" json:"app"`
-	ProviderIDs StringArray      `gorm:"type:text[];not null" json:"provider_ids"`
-	State     AuthRequestState      `gorm:"not null" json:"state"`
+	SessionID   string           `gorm:"not null" json:"session_id"`
+	AppID       string           `gorm:"not null" json:"app_id"`
+	App         *App             `gorm:"foreignKey:AppID" json:"app"`
+	AuthIdentityProviders []AuthIdentityProvider `gorm:"foreignKey:AuthRequestID" json:"auth_identity_providers"`
+	State       AuthRequestState `gorm:"not null" json:"state"`
 }
 
 func (AuthRequest) TableName() string {

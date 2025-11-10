@@ -13,6 +13,7 @@ type IdentityProviderRepository struct {
 type IdentityProviderFilter struct {
 	Status    string   `json:"status"`
 	IDs       []string `json:"ids"`
+	ID        string   `json:"id"`
 	Name      string   `json:"name"`
 	Names     []string `json:"names"`
 	Scopes    []string `json:"scopes"`
@@ -31,7 +32,7 @@ func (r *IdentityProviderRepository) CreateMany(identityProviders []*entitities.
 	return tx.CreateInBatches(identityProviders, 100).Error
 }
 
-func (r *IdentityProviderRepository) FindAllByFilter(filter IdentityProviderFilter, tx *gorm.DB) ([]*entitities.IdentityProvider, error) {
+func (r *IdentityProviderRepository) FindAllByFilter(filter IdentityProviderFilter, tx *gorm.DB)  ([]*entitities.IdentityProvider, error) {
 	if tx == nil {
 		tx = r.db
 	}
@@ -66,4 +67,28 @@ func (r *IdentityProviderRepository) FindAllByFilter(filter IdentityProviderFilt
 
 	identityProviders := []*entitities.IdentityProvider{}
 	return identityProviders, query.Find(&identityProviders).Error
+}
+
+func (r *IdentityProviderRepository) FindOneByFilter(filter IdentityProviderFilter, tx *gorm.DB) (*entitities.IdentityProvider, error) {
+	if tx == nil {
+		tx = r.db
+	}
+
+	query := tx.Model(&entitities.IdentityProvider{})
+	
+	if filter.ID != "" {
+		query = query.Where("id = ?", filter.ID)
+	}
+
+	if filter.Name != "" {
+		query = query.Where("name = ?", filter.Name)
+	}
+	
+
+	if filter.Status != "" {
+		query = query.Where("status = ?", filter.Status)
+	}
+
+	identityProvider := &entitities.IdentityProvider{}
+	return identityProvider, query.First(identityProvider).Error
 }

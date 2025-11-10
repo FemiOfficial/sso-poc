@@ -25,10 +25,30 @@ func (c *AuthController) InitiateAuthSession(ctx *gin.Context) {
 	ctx.JSON(statusCode, utils.GenericApiResponse(statusCode, message, data))
 }
 
-func(c * AuthController) LoginUser(ctx *gin.Context) {
-	message, err, statusCode, data := c.authService.LoginUser(ctx)
+func (c *AuthController) ResolveSession(ctx *gin.Context) {
+	message, err, statusCode, data := c.authService.ResolveSession(ctx)
 	if err != nil {
-		fmt.Println("Error intiating login for user: ", err, statusCode)
+		fmt.Println("Error resolving session: ", err, statusCode)
+		ctx.JSON(statusCode, utils.GenericApiResponse(statusCode, message, nil))
+		return
+	}
+	ctx.JSON(statusCode, utils.GenericApiResponse(statusCode, message, data))
+}
+
+// func (c *AuthController) LoginUser(ctx *gin.Context) {
+// 	message, err, statusCode, data := c.authService.LoginUser(ctx)
+// 	if err != nil {
+// 		fmt.Println("Error intiating login for user: ", err, statusCode)
+// 		ctx.JSON(statusCode, utils.GenericApiResponse(statusCode, message, nil))
+// 		return
+// 	}
+// 	ctx.JSON(statusCode, utils.GenericApiResponse(statusCode, message, data))
+// }
+
+func (c *AuthController) LoginUserWithSession(ctx *gin.Context) {
+	message, err, statusCode, data := c.authService.LoginUserWithSession(ctx)
+	if err != nil {
+		fmt.Println("Error initiating login for user with session: ", err, statusCode)
 		ctx.JSON(statusCode, utils.GenericApiResponse(statusCode, message, nil))
 		return
 	}

@@ -17,6 +17,7 @@ type AppIdentityProviderFilter struct {
 	Provider  string   `json:"provider"`
 	AppID     string   `json:"app_id"`
 	IsDefault bool     `json:"is_default"`
+	ProviderIDs []string `json:"provider_ids"`
 }
 
 func CreateAppIdentityProviderRepository(db *gorm.DB) *AppIdentityProviderRepository {
@@ -29,6 +30,14 @@ func (r *AppIdentityProviderRepository) CreateMany(appIdentityProviders []*entit
 	}
 
 	return tx.CreateInBatches(appIdentityProviders, 100).Error
+}
+
+func (r *AppIdentityProviderRepository) Create(appIdentityProvider *entitities.AppIdentityProvider, tx *gorm.DB) error {
+	if tx == nil {
+		tx = r.db
+	}
+
+	return tx.Create(appIdentityProvider).Error
 }
 
 func (r *AppIdentityProviderRepository) FindOneByFilter(filter AppIdentityProviderFilter, tx *gorm.DB) (*entitities.AppIdentityProvider, error) {
@@ -48,6 +57,10 @@ func (r *AppIdentityProviderRepository) FindOneByFilter(filter AppIdentityProvid
 
 	if filter.Provider != "" {
 		query = query.Where("app_identity_providers.identity_provider_id = ?", filter.Provider)
+	}
+
+	if len(filter.ProviderIDs) > 0 {
+		query = query.Where("app_identity_providers.identity_provider_id IN (?)", filter.ProviderIDs)
 	}
 
 	appIdentityProvider := &entitities.AppIdentityProvider{}

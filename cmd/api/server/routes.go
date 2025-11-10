@@ -2,11 +2,12 @@ package server
 
 import (
 	"net/http"
+	publicMiddlewares "sso-poc/cmd/api/middlewares"
 	"sso-poc/cmd/api/server/auth"
+	appTypes "sso-poc/cmd/api/server/dashboard/app/types"
 	"sso-poc/cmd/api/server/dashboard/middlewares"
 	miscTypes "sso-poc/cmd/api/server/dashboard/misc/types"
 	organisationTypes "sso-poc/cmd/api/server/dashboard/organisation/types"
-	appTypes "sso-poc/cmd/api/server/dashboard/app/types"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -27,6 +28,17 @@ func (s *Server) RegisterRoutes() http.Handler {
 	api := routes.Group("/api")
 	{
 		api.GET("/health", s.healthHandler)
+		// Public auth endpoints for widget
+
+	publicApi := api.Group("/widget")
+	publicApi.Use(publicMiddlewares.WidgetAuthMiddleware())
+	{
+		publicApi.GET("/auth/session/:sessionId", s.authController.ResolveSession)
+		publicApi.POST("/auth/session/:sessionId/login", s.authController.LoginUserWithSession)
+	}
+
+		api.GET("/auth/session/:sessionId", s.authController.ResolveSession)
+		api.POST("/auth/session/:sessionId/login", s.authController.LoginUserWithSession)
 	}
 
 	protectedAPI := routes.Group("/api")
@@ -34,7 +46,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	{
 		protectedAPI.POST("/auth/initiate", s.authController.InitiateAuthSession)
 		// protectedAPI.GET("/auth/profile", s.authController.GetAuthProfileData)
-		protectedAPI.POST("/auth/login", s.authController.LoginUser)
+		// protectedAPI.POST("/auth/login", s.authController.LoginUser)
 	}
 
 	dashboardAPI := routes.Group("/api/dashboard")
@@ -74,8 +86,13 @@ func (s *Server) RegisterRoutes() http.Handler {
 		protectedDashboardApps.GET("/:app_id",
 			s.appController.GetApp)
 
+		protectedDashboardApps.POST("/:app_id/identity-provider",
+			middlewares.ValidateRequestBody[appTypes.AppIdentityProviderRequest](),
+			s.appController.AddAppIdentityProvider)
+
+
 		protectedDashboardApps.PUT("/:app_id/identity-provider",
-			middlewares.ValidateRequestBody[appTypes.UpdateAppIdentityProviderRequest](),
+			middlewares.ValidateRequestBody[appTypes.AppIdentityProviderRequest](),
 			s.appController.UpdateAppIdentityProvider)
 	}
 	// lib := routes.Group("/lib")

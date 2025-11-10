@@ -2,6 +2,7 @@
     "name": "google",
     "display_name": "Google",
     "scopes": [],
+    "logo": "https://img.icons8.com/fluency/48/1A1A1A/google-logo.png",
     "status": "active"
   },
   {
@@ -9,6 +10,7 @@
     "display_name": "Facebook",
     "scopes": [],
     "status": "active",
+    "logo": "https://img.icons8.com/sf-black-filled/64/7950F2/facebook.png",
     "credentials": ["key", "secret"]
   },
   {
@@ -16,6 +18,7 @@
     "display_name": "LinkedIn",
     "scopes": [],
     "status": "active",
+    "logo": "https://img.icons8.com/color/48/1A1A1A/linkedin.png",
     "credentials": ["key", "secret"]
   },
    {
@@ -23,6 +26,7 @@
     "display_name": "GitHub",
     "scopes": [],
     "status": "active",
+    "logo": "https://img.icons8.com/glyph-neue/64/1A1A1A/github.png",
     "credentials": ["key", "secret"]
   },
   {
@@ -30,6 +34,7 @@
     "display_name": "Twitter (X)",
     "scopes": [],
     "status": "active",
+    "logo": "https://img.icons8.com/color/48/1A1A1A/twitterx--v1.png",
     "credentials": ["key", "secret"]
   },
   {
@@ -37,6 +42,7 @@
     "display_name": "Microsoft",
     "scopes": [],
     "status": "active",
+    "logo": "https://img.icons8.com/color/48/1A1A1A/microsoft.png",
     "credentials": ["online_key", "online_secret"]
   },
   {
@@ -44,6 +50,7 @@
     "display_name": "Apple",
     "scopes": ["name", "email"],
     "status": "active",
+    "logo": "https://img.icons8.com/ios-filled/50/1A1A1A/mac-os.png",
     "credentials": ["key", "secret"]
   },
   {
@@ -51,12 +58,14 @@
     "display_name": "Amazon",
     "scopes": [],
     "status": "active",
+    "logo": "https://img.icons8.com/external-those-icons-flat-those-icons/48/1A1A1A/external-Amazon-Logo-social-media-those-icons-flat-those-icons.png",
     "credentials": ["key", "secret"]
   },
   {
     "name": "okta",
     "display_name": "Okta",
     "scopes": ["openid", "profile", "email"],
+    "logo": "https://img.icons8.com/external-others-inmotus-design/67/external-O-qwerty-keypad-others-inmotus-design.png",
     "status": "active",
     "credentials": ["id", "secret", "domain"]
   },
@@ -65,6 +74,7 @@
     "display_name": "OpenID",
     "scopes": ["openid", "profile", "email"],
     "status": "active",
+    "logo": "https://img.icons8.com/ios-filled/50/1A1A1A/openid.png",
     "credentials": ["key", "secret", "discovery_url"]
   },
   {
@@ -72,6 +82,7 @@
     "display_name": "Auth0",
     "scopes": [],
     "status": "active",
+    "logo": "https://img.icons8.com/external-tal-revivo-color-tal-revivo/48/1A1A1A/external-auth0-the-solution-you-need-for-web-mobile-iot-and-internal-applications-logo-color-tal-revivo.png",
     "credentials": ["domain"]
   }
 ]

@@ -7,6 +7,9 @@ type IdentityProviders struct {
 	ID string `json:"id"`
 	Scopes []string `json:"scopes" binding:"omitempty,min=1,max=2"`
 }
+
+
+
 type CreateAppRequest struct {
 	Name string `json:"name" binding:"required,min=3,max=255"`
 	Description string `json:"description" binding:"required,min=3,max=255"`
@@ -41,7 +44,7 @@ type AppIdentityProviderCredentials struct {
 	Key string `json:"key"`
 	Value string `json:"value"`
 }
-type UpdateAppIdentityProviderRequest struct {
+type AppIdentityProviderRequest struct {
 	ID string `json:"id" binding:"required"`
 	Scopes []string `json:"scopes" binding:"omitempty,min=1,max=2"`
 	// ProviderScopes []string `json:"provider_scopes" binding:"omitempty,min=1,max=2"`

@@ -120,7 +120,6 @@ func (r *AppRepository) FindOneByFilter(filter AppFilter, tx *gorm.DB) (*entitit
 	}
 
 	app := &entitities.App{}
-	// app := &entitities.App{}
 	err := query.
 		Joins("LEFT JOIN app_identity_providers ON apps.id = app_identity_providers.app_id").
 		Preload("AppIdentityProviders.IdentityProvider").

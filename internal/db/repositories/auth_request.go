@@ -31,14 +31,15 @@ func (r *AuthRequestRepository) FindByFilter(filter AuthRequestFilter, tx *gorm.
 		tx = r.db
 	}
 
-	query := tx.Model(&entitities.AuthRequest{})
+	query := tx.Model(&entitities.AuthRequest{}).
+	Preload("AuthIdentityProviders", func(db *gorm.DB) *gorm.DB {
+		return db.Joins("IdentityProvider")
+	})
 
 	if filter.SessionID != "" {
 		query = query.Where("session_id = ?", filter.SessionID)
 	}
 
 	authRequest := &entitities.AuthRequest{}
-	return authRequest,
-		query.First(authRequest).Preload("App").Preload("App.IdentityProviders.IdentityProvider").Where("app_identity_providers.id = ANY(?)",
-			authRequest.ProviderIDs).Error
+	return authRequest, query.First(authRequest).Error
 }

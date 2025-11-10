@@ -35,7 +35,13 @@ func NewServer() *http.Server {
 	db := db.InitializeDB()
 	redis := cache.CreateRedisClient()
 	vaultEncrypt, err := crypto.NewTokenEncryption()
-	authLib := authLib.CreateAuthLib(db, redis, vaultEncrypt, repositories.CreateAuthRequestRepository(db.DB))
+	authLib := authLib.CreateAuthLib(
+		db, 
+		redis, 
+		vaultEncrypt,
+		repositories.CreateAuthRequestRepository(db.DB), 
+		repositories.CreateAppIdentityProviderRepository(db.DB),
+		repositories.CreateAuthIdentityProviderRepository(db.DB))
 
 	if err != nil {
 		panic(fmt.Sprintf("Failed to create vault helper: %v", err))
